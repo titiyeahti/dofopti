@@ -1,5 +1,18 @@
 #include "data_import.h"
 
+/* TODO :
+ * store sql requests in separate .dat file for a beter world
+ * store problem constants in a separate .dat file for the same reason
+ *    each time with enum and char* vec indexed by corresponding enum
+ * add abstraction over table insersion and table creation 
+ * int create_table(sqlite3* db, char* req);
+ * int insert_line(sqlite3* db, char* req, void* argv)
+ *    add a way to keep track of positionnal arguments for binds
+ *    create an new structure
+ *    try not to go mad
+ */
+
+
 int create_tables(sqlite3* db){
 	sqlite3_stmt* stmt;
 	int ret;
