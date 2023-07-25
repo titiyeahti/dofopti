@@ -1,5 +1,7 @@
 #include "data_import.h"
 #define DBFILE "bdd/testdb.db"
+#define PANOSJSON "../data/sets.json"
+#define ITEMSJSON "../data/items.json"
 
 int main(){
   int ret;
@@ -11,18 +13,7 @@ int main(){
     exit(EXIT_FAILURE);
   }
 
-  drop_tables(db);
-  create_tables(db);
-
-  insert_pano(db, 2, "piou rouge", 7);
-
-  insert_item(db, 3, "chapeau piou rouge", 2, "head", NULL, 12);
-  
-  insert_item(db, 4, "solomonk", 0, "head", NULL, 125);
-
-  insert_item(db, 8, "youyettes", 0, "weapon", "dagues", 156);
-
-  printf("insane\n");
+  insert_items_json(db, ITEMSJSON);
 
   ret = sqlite3_close(db);
   return EXIT_SUCCESS;

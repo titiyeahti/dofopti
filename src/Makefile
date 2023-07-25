@@ -1,5 +1,5 @@
 CC=g++
-CXXFLAGS= -g -Wall -Wextra 
+CXXFLAGS= -g -Wall -Wextra -O3 
 LDLIBS= -lglpk -ljsoncpp -lsqlite3
 TARGETS= testjson.out test_libs.out test_db.out
 OBJECTS= data_import.o

@@ -42,7 +42,7 @@ int drop_tables(sqlite3* db){
   return 0;
 }
 
-int bind_data(sqlite3_stmt* stmt, void* data, char code, int pos){
+int bind_data(sqlite3_stmt* stmt, void* data, const char code, int pos){
   if(!data) return sqlite3_bind_null(stmt, pos);
   int val;
   const char* str;
@@ -64,8 +64,6 @@ int bind_data(sqlite3_stmt* stmt, void* data, char code, int pos){
 
 int bind_list(sqlite3_stmt* stmt, void* data[], const char* code){
   int ret;
-  puts(code);
-  putc('\n', stdout);
   for(size_t i = 0; i < strlen(code); i++){
     ret = bind_data(stmt, data[i], code[i], i+1);
     if(ret){
@@ -76,25 +74,24 @@ int bind_list(sqlite3_stmt* stmt, void* data[], const char* code){
   return 0;
 }
 
-int insert_pano(sqlite3* db, int pano_id, char* name, int size){
+int insert_pano(sqlite3* db, int pano_id, const char* name){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_PANOS], -1, &stmt, NULL);
 
   void* data[] = {
     (void*) &pano_id,
-    (void*) &name,
-    (void*) &size
+    (void*) &name
   };
 
-  ret = bind_list(stmt, data, "isi");
+  ret = bind_list(stmt, data, "is");
   ret = sqlite3_step(stmt);
   ret = sqlite3_finalize(stmt);
   return ret;
 }
 
-int insert_item(sqlite3* db, int item_id, char* name, int id_pano, 
-    char* slot, char* cat, int min_lvl){
+int insert_item(sqlite3* db, int item_id, const char* name, int id_pano, 
+    const char* slot, const char* cat, int min_lvl){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_ITEMS], -1, &stmt, NULL);
@@ -116,7 +113,7 @@ int insert_item(sqlite3* db, int item_id, char* name, int id_pano,
 }
 
 int insert_bonus(sqlite3* db, int pano_id, int nb_item, 
-    char* stat, int value){
+    const char* stat, int value){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_BONUSES], -1, &stmt, NULL);
@@ -135,7 +132,7 @@ int insert_bonus(sqlite3* db, int pano_id, int nb_item,
   return ret;
 }
 
-int insert_stat(sqlite3* db, int item_id, char* stat, int value){
+int insert_stat(sqlite3* db, int item_id, const char* stat, int value){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_STATS], -1, &stmt, NULL);
@@ -153,15 +150,76 @@ int insert_stat(sqlite3* db, int item_id, char* stat, int value){
   return ret;
 }
 
-int insert_spell(sqlite3* db, int spell_id, char* text);
+int insert_spell(sqlite3* db, int spell_id, const char* text);
 
-int insert_items_json(sqlite3* db, char* path);
+int insert_items_json(sqlite3* db, const char* path){
+  int ret;
+  std::ifstream ifs(path);
+  Json::Reader reader;
+  Json::Value root;
+  reader.parse(ifs, root);
 
-int insert_panos_json(sqlite3* db, char* path);
+  for(Json::Value& item : root){
+    std::cout << item["name"]["en"] << std::endl;
+    Json::Value& stats = item["stats"];
 
-int insert_weapons_json(sqlite3* db, char* path);
+    int id, pano_id, len;
+    std::string str = item["dofusID"].asString();
+    len = str.strlen();
+    id = std::stoi(str.substr(max(len-9,0), 9));
 
-int insert_pets_json(sqlite3* db, char* path);
+    if(item["setID"].isNull()) pano_id = 0;
+    else{
+      str = item["setID"].asStrinf();
+      len = str.strlen();
+      pano_id = std::stoi(str.substr(max(len-9,0), 9));
+    }
 
-int insert_mounts_json(sqlite3* db, char* path);
+    ret = insert_item(db, id, item["name"]["en"].asCString(), pano_id,
+        item["itemType"].asCString(), item["itemType"].asCString(),
+        item["level"].asInt());
+
+    for(Json::Value& stat : stats){
+      ret = insert_stat(db, id, stat["stat"].asCString(), 
+          stat["maxStat"].asInt());
+    }
+  }
+
+  return ret;
+}
+
+int insert_panos_json(sqlite3* db, const char* path){
+  int ret;
+  std::ifstream ifs(path);
+  Json::Reader reader;
+  Json::Value root;
+  reader.parse(ifs, root);
+
+  for(Json::Value& pano : root){
+    std::cout << pano["name"]["en"] << std::endl;
+    Json::Value& bonuses = pano["bonuses"];
+    int id, len;
+    std::string str = pano["id"].asString();
+    len = str.strlen();
+    id = std::stoi(str.substr(max(len-9,0),9));
+
+    ret = insert_pano(db, id, pano["name"]["en"].asCString());
+
+    for(std::string& key : bonuses.getMemberNames()){
+      for(Json::Value& bonus : bonuses[key]){
+        if(bonus["stat"].isNull()) continue;
+        ret = insert_bonus(db, id, std::stoi(key),
+            bonus["stat"].asCString(), bonus["value"].asInt());
+      }
+    }
+  }
+
+  return ret;
+}
+
+int insert_weapons_json(sqlite3* db, const char* path);
+
+int insert_pets_json(sqlite3* db, const char* path);
+
+int insert_mounts_json(sqlite3* db, const char* path);
 
