@@ -1,12 +1,12 @@
 CC=g++
 CXXFLAGS= -g -Wall -Wextra 
 LDLIBS= -lglpk -ljsoncpp -lsqlite3
-TARGETS= testjson test_libs test_db
+TARGETS= testjson.out test_libs.out test_db.out
 OBJECTS= data_import.o
 
 all: $(TARGETS)
 
-test%: test%.cpp $(OBJECTS)
+%.out: %.cpp $(OBJECTS)
 	g++ $^ $(CXXFLAGS) $(LDLIBS) -o $@
 
 clean:
