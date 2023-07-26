@@ -26,15 +26,16 @@ int drop_tables(sqlite3* db);
 
 int bind_list(sqlite3_stmt** stmt, void* data[], const char* code);
 
-int insert_stat(sqlite3* db, int item_id, const char* stat, int value);
-
-int insert_item(sqlite3* db, int item_id, const char* name, int id_pano, 
-    const char* slot, const char* cat, int min_lvl);
-
 int insert_pano(sqlite3* db, int pano_id, const char* name);
+
+int insert_item(sqlite3* db, const char* name, int id_pano, 
+    const char* slot, const char* cat, int min_lvl);
 
 int insert_bonus(sqlite3* db, int pano_id, int nb_item, 
     const char* stat, int value);
+
+int insert_stat(sqlite3* db, int item_id, const char* stat, 
+    int minval, int maxval);
 
 int insert_spell(sqlite3* db, int spell_id, const char* text);
 

@@ -13,6 +13,10 @@ int main(){
     exit(EXIT_FAILURE);
   }
 
+  drop_tables(db);
+  create_tables(db);
+
+  insert_panos_json(db, PANOSJSON);
   insert_items_json(db, ITEMSJSON);
 
   ret = sqlite3_close(db);

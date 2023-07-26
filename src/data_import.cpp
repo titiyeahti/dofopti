@@ -90,14 +90,13 @@ int insert_pano(sqlite3* db, int pano_id, const char* name){
   return ret;
 }
 
-int insert_item(sqlite3* db, int item_id, const char* name, int id_pano, 
+int insert_item(sqlite3* db, const char* name, int id_pano, 
     const char* slot, const char* cat, int min_lvl){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_ITEMS], -1, &stmt, NULL);
 
   void* data[] = {
-    (void*) &item_id,
     (void*) &name,
     id_pano ? (void*) &id_pano : NULL,
     (void*) &slot,
@@ -105,7 +104,7 @@ int insert_item(sqlite3* db, int item_id, const char* name, int id_pano,
     (void*) &min_lvl
   };
 
-  ret = bind_list(stmt, data, "isissi");
+  ret = bind_list(stmt, data, "sissi");
   ret = sqlite3_step(stmt);
   ret = sqlite3_finalize(stmt);
 
@@ -132,7 +131,8 @@ int insert_bonus(sqlite3* db, int pano_id, int nb_item,
   return ret;
 }
 
-int insert_stat(sqlite3* db, int item_id, const char* stat, int value){
+int insert_stat(sqlite3* db, int item_id, const char* stat, 
+    int minval, int maxval){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_STATS], -1, &stmt, NULL);
@@ -140,10 +140,11 @@ int insert_stat(sqlite3* db, int item_id, const char* stat, int value){
   void* data[] = {
     (void*) &item_id,
     (void*) &stat,
-    (void*) &value 
+    (void*) &minval,
+    (void*) &maxval
   };
 
-  ret = bind_list(stmt, data, "isi");
+  ret = bind_list(stmt, data, "isii");
   ret = sqlite3_step(stmt);
   ret = sqlite3_finalize(stmt);
 
@@ -152,6 +153,11 @@ int insert_stat(sqlite3* db, int item_id, const char* stat, int value){
 
 int insert_spell(sqlite3* db, int spell_id, const char* text);
 
+int yetistoi(std::string str){
+  int len = (int) str.length();
+  return std::stoi(str.substr(std::max(len-9,0), 9));
+}
+
 int insert_items_json(sqlite3* db, const char* path){
   int ret;
   std::ifstream ifs(path);
@@ -159,32 +165,30 @@ int insert_items_json(sqlite3* db, const char* path){
   Json::Value root;
   reader.parse(ifs, root);
 
+  ret = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
   for(Json::Value& item : root){
     std::cout << item["name"]["en"] << std::endl;
     Json::Value& stats = item["stats"];
 
-    int id, pano_id, len;
-    std::string str = item["dofusID"].asString();
-    len = str.strlen();
-    id = std::stoi(str.substr(max(len-9,0), 9));
+    int id, pano_id;
 
     if(item["setID"].isNull()) pano_id = 0;
-    else{
-      str = item["setID"].asStrinf();
-      len = str.strlen();
-      pano_id = std::stoi(str.substr(max(len-9,0), 9));
-    }
+    else
+      pano_id = yetistoi(item["setID"].asString());
 
-    ret = insert_item(db, id, item["name"]["en"].asCString(), pano_id,
+    ret = insert_item(db, item["name"]["en"].asCString(), pano_id,
         item["itemType"].asCString(), item["itemType"].asCString(),
         item["level"].asInt());
 
+    id = (int) sqlite3_last_insert_rowid(db);
+
     for(Json::Value& stat : stats){
       ret = insert_stat(db, id, stat["stat"].asCString(), 
-          stat["maxStat"].asInt());
+          stat["minStat"].asInt(), stat["maxStat"].asInt());
     }
   }
 
+  ret = sqlite3_exec(db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
   return ret;
 }
 
@@ -195,13 +199,12 @@ int insert_panos_json(sqlite3* db, const char* path){
   Json::Value root;
   reader.parse(ifs, root);
 
+  ret = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
   for(Json::Value& pano : root){
     std::cout << pano["name"]["en"] << std::endl;
     Json::Value& bonuses = pano["bonuses"];
-    int id, len;
-    std::string str = pano["id"].asString();
-    len = str.strlen();
-    id = std::stoi(str.substr(max(len-9,0),9));
+    int id;
+    id = yetistoi(pano["id"].asString());
 
     ret = insert_pano(db, id, pano["name"]["en"].asCString());
 
@@ -214,6 +217,7 @@ int insert_panos_json(sqlite3* db, const char* path){
     }
   }
 
+  ret = sqlite3_exec(db, "COMMIT TRANSACTION;", NULL, NULL, NULL);
   return ret;
 }
 
