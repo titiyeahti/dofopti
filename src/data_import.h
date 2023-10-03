@@ -20,11 +20,38 @@ extern const char* const sql_create[];
 extern const char* const sql_insert[];
 extern const char* const sql_drop[];
 
+#define DEF(e, s) e
+
+enum stats_e{
+#include "stats.conf"
+};
+
+#undef DEF
+
+extern const char* const stats_names[];
+
+#define DEF(e, c, s, cs) e
+
+enum slots_e{
+#include "slots.conf"
+};
+
+#undef DEF
+
+extern const int slots_codes[];
+extern const char* const slots_names[];
+
 int create_tables(sqlite3* db);
 
 int drop_tables(sqlite3* db);
 
+int init_db(sqlite3* db);
+
 int bind_list(sqlite3_stmt** stmt, void* data[], const char* code);
+
+int insert_stats_codes(sqlite3* db);
+
+int insert_slots_codes(sqlite3* db);
 
 int insert_pano(sqlite3* db, int pano_id, const char* name);
 
@@ -32,7 +59,7 @@ int insert_const(sqlite3* db, int item_id, const char* stat,
     int sign, int value);
 
 int insert_item(sqlite3* db, const char* name, int id_pano, 
-    const char* slot, const char* cat, int min_lvl);
+    const char* cat, int min_lvl);
 
 int insert_bonus(sqlite3* db, int pano_id, int nb_item, 
     const char* stat, int value);

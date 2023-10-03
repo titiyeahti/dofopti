@@ -18,6 +18,27 @@ const char* const sql_drop[] = {
 };
 #undef DEF
 
+#define DEF(e, s) s
+const char* const stats_names[] = {
+#include "stats.conf"
+};
+#undef DEF
+
+#define DEF(e, c, s, cs) c
+const int slots_codes[] = {
+#include "slots.conf"
+};
+#undef DEF
+
+#define DEF(e, c, s, cs) s
+const char* const slots_names[] = {
+#include "slots.conf"
+};
+#undef DEF
+
+// TODO add the list code e.g. isiss to the requests.conf file
+// TODO improve the macro for insertion
+
 int create_tables(sqlite3* db){
   char* errmsg;
   for(size_t i = 0; i<SQLC_COUNT; i++){
@@ -40,6 +61,17 @@ int drop_tables(sqlite3* db){
   }
 
   return 0;
+}
+
+int init_db(sqlite3* db){
+  int ret;
+
+  ret = drop_tables(db);
+  ret = create_tables(db);
+  ret = insert_stats_codes(db);
+  ret = insert_slots_codes(db);
+
+  return ret;
 }
 
 int bind_data(sqlite3_stmt* stmt, void* data, const char code, int pos){
@@ -71,6 +103,42 @@ int bind_list(sqlite3_stmt* stmt, void* data[], const char* code){
       exit(EXIT_FAILURE);
     }
   }
+  return 0;
+}
+
+int insert_stats_codes(sqlite3* db){
+  int ret;
+  sqlite3_stmt* stmt;
+  for(int code = 0; code < STATS_COUNT; code ++){
+    ret = sqlite3_prepare(db, sql_insert[SQLC_STATSCODES], -1, &stmt, NULL);
+    void* data[] = {
+      (void*) &code,
+      (void*) &stats_names[code]
+    };
+
+    ret = bind_list(stmt, data, "is");
+    ret = sqlite3_step(stmt);
+    ret = sqlite3_finalize(stmt);
+  }
+
+  return 0;
+}
+
+int insert_slots_codes(sqlite3* db){
+  int ret;
+  sqlite3_stmt* stmt;
+  for(int slot = 0; slot < SLOT_COUNT; slot++){
+    ret = sqlite3_prepare(db, sql_insert[SQLC_SLOTS], -1, &stmt, NULL);
+    void* data[] = {
+      (void*) &slots_codes[slot],
+      (void*) &slots_names[slot]
+    };
+
+    ret = bind_list(stmt, data, "is");
+    ret = sqlite3_step(stmt);
+    ret = sqlite3_finalize(stmt);
+  }
+
   return 0;
 }
 
@@ -111,7 +179,7 @@ int insert_const(sqlite3* db, int item_id, const char* stat,
 }
 
 int insert_item(sqlite3* db, const char* name, int id_pano, 
-    const char* slot, const char* cat, int min_lvl){
+    const char* cat, int min_lvl){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare(db, sql_insert[SQLC_ITEMS], -1, &stmt, NULL);
@@ -119,12 +187,11 @@ int insert_item(sqlite3* db, const char* name, int id_pano,
   void* data[] = {
     (void*) &name,
     id_pano ? (void*) &id_pano : NULL,
-    (void*) &slot,
-    cat ? (void*) &cat : NULL,
+    (void*) &cat,
     (void*) &min_lvl
   };
 
-  ret = bind_list(stmt, data, "sissi");
+  ret = bind_list(stmt, data, "sisi");
   ret = sqlite3_step(stmt);
   ret = sqlite3_finalize(stmt);
 
@@ -187,6 +254,7 @@ int insert_items_json(sqlite3* db, const char* path){
 
   ret = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
   for(Json::Value& item : root){
+    //std::cout << item["name"]["en"].asCString() << std::endl;
     Json::Value& stats = item["stats"];
     Json::Value& consts = item["conditions"]["conditions"]["and"];
 
@@ -197,8 +265,7 @@ int insert_items_json(sqlite3* db, const char* path){
       pano_id = yetistoi(item["setID"].asString());
 
     ret = insert_item(db, item["name"]["en"].asCString(), pano_id,
-        item["itemType"].asCString(), item["itemType"].asCString(),
-        item["level"].asInt());
+        item["itemType"].asCString(), item["level"].asInt());
 
     id = (int) sqlite3_last_insert_rowid(db);
 
@@ -208,7 +275,7 @@ int insert_items_json(sqlite3* db, const char* path){
     }
 
     for(Json::Value& cond : consts){
-      std::cout << item["name"]["en"] << std::endl;
+      if (!cond["stat"]) continue;
       int sign = 0;
       switch (cond["operator"].asCString()[0]) {
         case '<' :
@@ -223,7 +290,7 @@ int insert_items_json(sqlite3* db, const char* path){
         default :
           sign = 2;
       }
-      
+
       ret = insert_const(db, id, cond["stat"].asCString(), sign, 
           cond["value"].asInt());
     }
@@ -242,7 +309,6 @@ int insert_panos_json(sqlite3* db, const char* path){
 
   ret = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
   for(Json::Value& pano : root){
-    std::cout << pano["name"]["en"] << std::endl;
     Json::Value& bonuses = pano["bonuses"];
     int id;
     id = yetistoi(pano["id"].asString());
