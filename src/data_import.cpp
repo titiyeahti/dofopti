@@ -90,6 +90,26 @@ int insert_pano(sqlite3* db, int pano_id, const char* name){
   return ret;
 }
 
+int insert_const(sqlite3* db, int item_id, const char* stat, 
+    int sign, int value){
+  int ret;
+  sqlite3_stmt* stmt;
+  ret = sqlite3_prepare(db, sql_insert[SQLC_CONSTS], -1, &stmt, NULL);
+
+  void* data[] = {
+    (void*) &item_id,
+    (void*) &stat,
+    (void*) &sign,
+    (void*) &value,
+  };
+
+  ret = bind_list(stmt, data, "isii");
+  ret = sqlite3_step(stmt);
+  ret = sqlite3_finalize(stmt);
+
+  return ret;
+}
+
 int insert_item(sqlite3* db, const char* name, int id_pano, 
     const char* slot, const char* cat, int min_lvl){
   int ret;
@@ -167,8 +187,8 @@ int insert_items_json(sqlite3* db, const char* path){
 
   ret = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
   for(Json::Value& item : root){
-    std::cout << item["name"]["en"] << std::endl;
     Json::Value& stats = item["stats"];
+    Json::Value& consts = item["conditions"]["conditions"]["and"];
 
     int id, pano_id;
 
@@ -185,6 +205,27 @@ int insert_items_json(sqlite3* db, const char* path){
     for(Json::Value& stat : stats){
       ret = insert_stat(db, id, stat["stat"].asCString(), 
           stat["minStat"].asInt(), stat["maxStat"].asInt());
+    }
+
+    for(Json::Value& cond : consts){
+      std::cout << item["name"]["en"] << std::endl;
+      int sign = 0;
+      switch (cond["operator"].asCString()[0]) {
+        case '<' :
+          sign = -1;
+          break;
+        case '>':
+          sign = 1;
+          break;
+        case '=' :
+          sign = 0;
+          break;
+        default :
+          sign = 2;
+      }
+      
+      ret = insert_const(db, id, cond["stat"].asCString(), sign, 
+          cond["value"].asInt());
     }
   }
 

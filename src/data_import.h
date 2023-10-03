@@ -28,6 +28,9 @@ int bind_list(sqlite3_stmt** stmt, void* data[], const char* code);
 
 int insert_pano(sqlite3* db, int pano_id, const char* name);
 
+int insert_const(sqlite3* db, int item_id, const char* stat, 
+    int sign, int value);
+
 int insert_item(sqlite3* db, const char* name, int id_pano, 
     const char* slot, const char* cat, int min_lvl);
 
