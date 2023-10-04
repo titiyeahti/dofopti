@@ -38,6 +38,7 @@ const char* const slots_names[] = {
 
 // TODO add the list code e.g. isiss to the requests.conf file
 // TODO improve the macro for insertion
+// TODO fix consts table to take stat code into account
 
 int create_tables(sqlite3* db){
   char* errmsg;
