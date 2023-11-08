@@ -72,6 +72,46 @@
     * base stats
  * multiply the combination by the matrix (y*S) */
 
+#define ITEM_STATS_OFFSET 19
+
+#define SQL_CREATE_WORK_TABLE(name, filter) \
+  "create table if not exists work_" name " as select * from items as "\
+  "base_items where (" filter ") order by slot_code;"
+
+#define SQL_ADD_TEMPID_COL(name) \
+  "alter table work_" name " add tempid integer;"
+
+#define SQL_FILL_TEMPID(name) \
+  "update table work_" name " set tempid = rowid - 1;"
+
+#define SQL_DROP_WORK_TABLE(name) \
+  "drop table if exists work_" name ";"
+
+#define SQL_WORK_COUNT_ITEMS(name) \
+  "select count(*) from work_" name ";"
+
+#define SQL_WORK_COUNT_PANOS(name) \
+  "select count(distinct id_pano) from work_" name ";"
+
+#define SQL_WORK_COUNT_SETITEMS(name) \
+  "select count(*) from work_" name " where id_pano is not null;"
+
+#define SQL_WORK_COUNT_BONUSES(name) \
+  "select sum(nb_bon) from (select max(nb_items) + 1 as nb_bon, "\
+  "bonuses.id_pano from work_" name " join bonuses on work_" name\
+  ".id_pano = bonuses.id_pano group by bonuses.id_pano);
+
+#define SQL_WORK_SELECT_ITEM_DELIM(name) \
+  "select slot_code, count(*) from work_" name " group by slot_code;"
+
+#define SQL_WORK_SELECT_ITEM_STATS(name) \
+  "select tempid, stat_code, maxval from work_" name " join stats on"\
+  "id = id_items order by tempid, stat_code;"
+
+#define SQL_WORK_SELECT_PANO_ITEMS(name) \
+  "select tempid from work_" name " where id_pano is not null order "\
+  "by id_pano;"
+
 typedef char short_word[32];
 typedef double stat_vector[STATS_COUNT];
 
@@ -128,6 +168,10 @@ int problem_pano_names(problem_t* pb);
 int problem_pano_items(problem_t* pb);
 
 int problem_pano_bonuses(problem_t* pb);
+
+int problem_add_cols(problem_t* pb);
+
+int problem_add_structural_rows(problem_t* pb);
 
 int problem_add_pano_rows(problem_t* pb);
 
