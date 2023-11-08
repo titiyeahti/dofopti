@@ -74,6 +74,9 @@
 
 #define ITEM_STATS_OFFSET 19
 
+/* TODO create a temp table for concerned panos */
+/* TODO check sql requests */
+
 #define SQL_CREATE_WORK_TABLE(name, filter) \
   "create table if not exists work_" name " as select * from items as "\
   "base_items where (" filter ") order by slot_code;"
@@ -111,6 +114,15 @@
 #define SQL_WORK_SELECT_PANO_ITEMS(name) \
   "select tempid from work_" name " where id_pano is not null order "\
   "by id_pano;"
+
+/* TODO fix */
+#define SQL_WORK_SELECT_PANO_BONUSES(name) \
+
+
+#define SQL_WORK_SELECT_PANO_BONUSES(name) \
+  "select max(nb_items) + 1 as nb_bon, "\
+  "bonuses.id_pano from work_" name " join bonuses on work_" name\
+  ".id_pano = bonuses.id_pano group by bonuses.id_pano order by bonuses.id_pano;"
 
 typedef char short_word[32];
 typedef double stat_vector[STATS_COUNT];
@@ -153,21 +165,23 @@ problem_t* problem_new(sqlite3* db, const char* sql_query,
 
 /* TODO row creation wrapper */
 
-int problem_create_temp_table(problem_t* pb);
+int problem_create_temp_table(problem_t* pb);//
 
-int problem_select_count(problem_t* pb);
+int problem_select_count(problem_t* pb);//
 
-int problem_slot_delim(problem_t* pb);
+int problem_slot_delim(problem_t* pb);//
 
-int problem_item_stats(problem_t* pb);
+int problem_item_stats(problem_t* pb);//
 
 int problem_item_names(problem_t* pb);
 
 int problem_pano_names(problem_t* pb);
 
-int problem_pano_items(problem_t* pb);
+int problem_pano_items(problem_t* pb);//
 
-int problem_pano_bonuses(problem_t* pb);
+int problem_pano_bonuses(problem_t* pb);//
+
+int problem_pano_bonuses_delim(problem_t* pb);
 
 int problem_add_cols(problem_t* pb);
 

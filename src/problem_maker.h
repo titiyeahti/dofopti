@@ -16,18 +16,29 @@ typedef struct constraint{
 
 typedef struct item{
   size_t item_id;
-  size_t pano_id;
   int slot;
-  double stats[STATS_COUNT];
-  std::list<const_t> item_consts;
+
+  /* index of the binary variable tied to this item in the linear problem*/
+  size_t colum_index;
+  size_t nb_consts;
+  size_t pano_id;
+  pano_t* pano;
+  /* not usefull */
+  //double stats[STATS_COUNT];
+  const_t item_constraints[nb_consts]; 
 } item_t;
 
 typedef struct pano{
   size_t pano_id;
   size_t size;
-  size_t nb_items
-  size_t item_id[nb_items];
-  double bonuses[size][STATS_COUNT];
+  size_t nb_items;
+  size_t item_ids[nb_items];
+  item_t* items[nb_items];
+
+  /* indexes of column variables for each bonus in the linear problem*/
+  size_t bonuses_index[size+1];
+  /* Not usefull */
+  //double bonuses[size][STATS_COUNT];
 } pano_t;
 
 /* TODO using list is a bad idea in the fianl structure even if it could 
@@ -41,17 +52,30 @@ typedef struct problem{
   /* objective function */
   double obj[STATS_COUNT];
 
+  /* statistics without equipmenent and carac points */
+  double base_stats[STATS_COUNT];
+
   /* direction of optimization */
   int opt_dir;
 
   /* list of user constraints */
   std::list<const_t> user_consts;
 
-  /* list of items */
-  std::list<item_t> item_list[SLOTS_COUNT];
+  /* index of the first item of the slot */
+  size_t item_delim[SLOTS_COUNT+1];
 
-  /* list of panos */
-  std::list<pano_t> pano_list;
+  /* array of item indices */
+  item_t item_array[nb_items];
+
+  /* array of panos */
+  pano_t pano_array[nb_panos];
+
+  /* TODO allow to efficiently create panos constraints in glpk 
+   *  keep track of column id for items in each pano*/
+
+  /* TODO create arrays to keep track of item/bonuses contribution to stats*/
+  /* use c++ std array to get find ? */
+  /* or create an array, sort it and proceed to binary search */
 
   /* GLPK problem */
   glp_prob* prob;
