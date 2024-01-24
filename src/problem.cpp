@@ -35,6 +35,22 @@ problem_t* problem_new(sqlite3* db, const char* sql_query,
   return pb;
 }
 
+void free_problem(problem_t* pb){
+  free(pb->items_id);
+  free(pb->item_names);
+  free(pb->panos_names);
+  free(pb->panos_item);
+  free(pb->panos_delim);
+  free(pb->panos_delim_bonuses);
+  free(pb->coeff_matrix);
+  
+  free(pb->sql_query);
+
+  glpk_delete_prob(pb->glp_prob);
+
+  free(pb);
+}
+
 int problem_create_temp_table(problem_t* pb){
   int ret;
   sqlite3_stmt* stmt;
@@ -54,6 +70,7 @@ int problem_create_temp_table(problem_t* pb){
   if(ret) return ret;
 
   ret = sqlite3_prepare(pb->db, SQL_FILL_TEMPID(pb->name), -1, &stmt, NULL);
+  /* TODO */
   ret = sqlite3_step(
 
   sqlite3_finalize(stmt);
@@ -99,6 +116,7 @@ int problem_slot_delim(problem_t* pb){
       -1, &stmt, NULL);
 
   pb->slot_limit[0] = (size_t) 0;
+
   while(sqlite3_step(stmt) == SQLITE_ROW){
     id = sqlite3_column_int(stmt, 0) + 1;
     pb->slot_limit[id] = pb->slot_limit[id-1] 
@@ -163,6 +181,8 @@ int problem_pano_bonuses(problem_t* pb){
   int stat_code;
 
   sqlite3_stmt* stmt;
+  /*wrong request*/
+  /*TODO fix*/
   ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_STATS(pb->name), 
       -1, &stmt, NULL);
 
@@ -172,6 +192,7 @@ int problem_pano_bonuses(problem_t* pb){
     pano_id = sqlite3_column_int(stmt, 0);
     nb_items = sqlite3_column_int(stmt, 1);
 
+    /* Most likely +1 is a lie in fact not*/
     if(pano_id != last_pano) id += nb_items + 1;
     /* most likely id ++*/
     else if(nb_items > last_nb) id += nb_items - last_nb;
@@ -188,22 +209,30 @@ int problem_pano_bonuses(problem_t* pb){
   return ret;
 }
 
+/* dealt with simultaneaeeanously with the other delim by
+ * requesting temp pano table*/
 int problem_pano_bonuses_delim(problem_t* pb){
   int ret;
   return ret;
 }
 
+/* GLPK area */
 int problem_add_cols(problem_t* pb);
 
 int problem_add_structural_rows(problem_t* pb);
 
 int problem_add_pano_rows(problem_t* pb);
 
+/* Matrix mul to change basis */
 int problem_set_obj(problem_t* pb, stat_vector obj_coeff, int opt_dir);
 
+
+/* Not implemented for the beta version */
+/* User constraints */
 int problem_add_user_rows(problem_t* pb, stat_vector const_coeff,
     int type, double lb, double ub);
 
+/* Item constraints */
 int problem_add_item_rows(problem_t* pb, int stat_code, int type, 
     double lb, double ub);
 
@@ -211,5 +240,3 @@ int problem_solve(problem_t* pb);
 
 /* free every byte allocated by problem_new and drop the table created at the
  * start*/
-void free_problem(problem_t* pb);
-

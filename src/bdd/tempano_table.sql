@@ -11,7 +11,8 @@ alter table mochep add tempid integer;
 
 alter table mochep add b_count integer;
 
-update mochep set b_count = (select count(DISTINCT bonuses.nb_items) + 2 from bonuses where bonuses.id_pano = mochep.id_pano and bonuses.nb_items <= mochep.nb_items);
+/* travail ici */
+update mochep set b_count = (select max(bonuses.nb_items) + 1 from bonuses where bonuses.id_pano = mochep.id_pano and bonuses.nb_items <= mochep.nb_items);
 
 UPDATE mochep set tempid = rowid -1;
 

@@ -27,5 +27,7 @@ select distinct stat from consts;
 
 /* for each pano */
 select nb_items, stat, stat_code, value from bonuses where id_pano = 17 order by nb_items;
+
+
 select tempid, stat_code, sign, value from consts join moche on id = id_item;
 select * from moche order by id_pano;
