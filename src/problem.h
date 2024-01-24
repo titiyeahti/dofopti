@@ -81,6 +81,9 @@
   "create table if not exists work_" name " as select * from items as "\
   "base_items where (" filter ") order by slot_code;"
 
+#define SQL_CREATE_WORK_PANOS(name) \
+  "create table if not exists panos_" name " as select 
+
 #define SQL_ADD_TEMPID_COL(name) \
   "alter table work_" name " add tempid integer;"
 
