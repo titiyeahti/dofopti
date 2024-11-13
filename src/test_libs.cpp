@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <glpk.h>
 #include <sqlite3.h>
-#include <jsoncpp/json/json.h>
 
 int main(){
 	printf("%s\n", glp_version());

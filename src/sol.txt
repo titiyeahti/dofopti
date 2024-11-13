@@ -1,7 +1,7 @@
 Problem:    miniprob
 Rows:       11
 Columns:    22 (22 integer, 21 binary)
-Non-zeros:  39
+Non-zeros:  42
 Status:     INTEGER OPTIMAL
 Objective:  maxfo = 450 (MAXimum)
 
@@ -35,7 +35,7 @@ Objective:  maxfo = 450 (MAXimum)
     12 VK_0         *              1             0             1 
     13 VK_1         *              0             0             1 
     14 VK_2         *              0             0             1 
-    15 BB_0         *              1             0             1 
+    15 BB_0         *              0             0             1 
     16 BB_1         *              0             0             1 
     17 BB_2         *              0             0             1 
     18 BB_3         *              1             0             1 

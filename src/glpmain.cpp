@@ -75,7 +75,7 @@ int main(void){
     0, 80, 400,
     0, 0, 0,
     0, 0, 0,
-    0, 0, 100,
+    0, 100, 0,
     0, 0, 0,
     0, 0, 0,
     0, 40, 0,
@@ -199,9 +199,12 @@ int main(void){
   glp_set_row_name(pb, 6, "VK");
   glp_set_row_bnds(pb, 6, GLP_FX, 0, 0);
   glp_set_mat_row(pb, 6, 5, pids, pvals);
+
+  pvals[3] = 1;
+
   glp_set_row_name(pb, 7, "VKb");
   glp_set_row_bnds(pb, 7, GLP_FX, 1, 1);
-  glp_set_mat_row(pb, 7, 2, pids+2, pvals);
+  glp_set_mat_row(pb, 7, 3, pids+2, pvals);
   
 
   //bb
@@ -219,9 +222,10 @@ int main(void){
   glp_set_row_name(pb, 8, "BB");
   glp_set_row_bnds(pb, 8, GLP_FX, 0, 0);
   glp_set_mat_row(pb, 8, 7, pids, pvals);
+  pvals[4] = 1;
   glp_set_row_name(pb, 9, "BBb");
   glp_set_row_bnds(pb, 9, GLP_FX, 1, 1);
-  glp_set_mat_row(pb, 9, 3, pids+3, pvals);
+  glp_set_mat_row(pb, 9, 4, pids+3, pvals);
 
   // CH
   pids[1] = 1; pids[2] = 4; pids[3] = 11;
@@ -238,9 +242,10 @@ int main(void){
   glp_set_row_name(pb, 10, "CH");
   glp_set_row_bnds(pb, 10, GLP_FX, 0, 0);
   glp_set_mat_row(pb, 10, 7, pids, pvals);
+  pvals[4] = 1;
   glp_set_row_name(pb, 11, "CHb");
   glp_set_row_bnds(pb, 11, GLP_FX, 1, 1);
-  glp_set_mat_row(pb, 11, 3, pids+3, pvals);
+  glp_set_mat_row(pb, 11, 4, pids+3, pvals);
 
   // config parm
   glp_iocp parm;
@@ -250,6 +255,7 @@ int main(void){
   // solve
   glp_intopt(pb, &parm);
 
+  glp_write_prob(pb, 0, "problem_output.txt");
   glp_write_lp(pb, NULL, "output.txt");
   glp_print_mip(pb, "sol.txt");
   glp_delete_prob(pb);

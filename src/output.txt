@@ -2,8 +2,8 @@
 
 Maximize
  maxfo: + 100 CH_H + 70 KT_H + 70 BB_R + 50 CH_R + 80 CR_R + 100 BB_T
- + 100 VK_T + 80 GE_T + 90 BB_B + 80 CH_B + 40 BB_2 + 40 BB_3 + 50 CH_2
- + 50 CH_3
+ + 100 VK_T + 80 GE_T + 90 BB_B + 80 CH_B + 100 VK_2 + 40 BB_2 + 40 BB_3
+ + 50 CH_2 + 50 CH_3
 
 Subject To
  head: + KT_H + CH_H <= 1
@@ -12,11 +12,11 @@ Subject To
  boots: + CH_B + BB_B <= 1
  MINPA: + CH_3 + BB_3 + GE_T + KT_H >= 2
  VK: - 2 VK_2 - VK_1 + VK_T + VK_R = 0
- VKb: + VK_1 + VK_0 = 1
+ VKb: + VK_2 + VK_1 + VK_0 = 1
  BB: - 3 BB_3 - 2 BB_2 - BB_1 + BB_B + BB_T + BB_R = 0
- BBb: + BB_2 + BB_1 + BB_0 = 1
+ BBb: + BB_3 + BB_2 + BB_1 + BB_0 = 1
  CH: - 3 CH_3 - 2 CH_2 - CH_1 + CH_B + CH_R + CH_H = 0
- CHb: + CH_2 + CH_1 + CH_0 = 1
+ CHb: + CH_3 + CH_2 + CH_1 + CH_0 = 1
 
 Bounds
  0 <= CH_H <= 1
