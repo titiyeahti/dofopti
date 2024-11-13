@@ -5,28 +5,28 @@ problem_t* problem_new(sqlite3* db, const char* sql_query,
   int ret;
   problem_t* pb;
 
-  pb = malloc(sizeof(problem_t));
+  pb = (problem_t *) malloc(sizeof(problem_t));
   pb->db = db;
-  strcpy(pb->name, name);
+  strcpy(pb->pb_name, name);
   pb->lvl = lvl;
-  pb->sql_query = malloc(strlen(sql_query) + 1);
+  pb->sql_query = (char*) malloc(strlen(sql_query) + 1);
   strcpy(pb->sql_query, sql_query);
 
   /* database manipulations */
 
-  ret = problem_create_temp_table(pb);
+  ret = problem_create_temp_tables(pb);
   ret = problem_select_count(pb);
 
   /* malloc arrays */
   
-  pb->items_id = malloc(sizeof(size_t)*pb->nb_items);
-  pb->item_names = malloc(sizeof(short_word)*pb->nb_items);
-  pb->panos_names = malloc(sizeof(shord_word)*pb->nb_panos);
-  pb->panos_item = malloc(sizeof(size_t)*pb->nb_set_items);
-  pb->panos_delim = malloc(sizeof(size_t)*(pb->nb_panos+1));
-  pb->panos_delim_bonuses = malloc(sizeof(size_t)*(pb->nb_panos+1));
+  pb->items_id = (size_t*) malloc(sizeof(size_t)*pb->nb_items);
+  pb->item_names = (short_word*) malloc(sizeof(short_word)*pb->nb_items);
+  pb->panos_names = (short_word*) malloc(sizeof(short_word)*pb->nb_panos);
+  pb->panos_item = (size_t*) malloc(sizeof(size_t)*pb->nb_set_items);
+  pb->panos_delim = (size_t*) malloc(sizeof(size_t)*(pb->nb_panos+1));
+  pb->panos_delim_bonuses = (size_t*) malloc(sizeof(size_t)*(pb->nb_panos+1));
 
-  pb->coeff_matrix = malloc(sizeof(stat_vector)*(
+  pb->coeff_matrix = (stat_vector*) malloc(sizeof(stat_vector)*(
         ITEM_STATS_OFFSET + pb->nb_items + pb->nb_bonuses));
 
   /* creating glpk problem */
@@ -35,7 +35,10 @@ problem_t* problem_new(sqlite3* db, const char* sql_query,
   return pb;
 }
 
+/* free every byte allocated by problem_new and drop the table created at the
+ * start*/
 void free_problem(problem_t* pb){
+  problem_drop_temp_tables(pb);
   free(pb->items_id);
   free(pb->item_names);
   free(pb->panos_names);
@@ -51,27 +54,80 @@ void free_problem(problem_t* pb){
   free(pb);
 }
 
-int problem_create_temp_table(problem_t* pb){
+/* Once debug done, maybe concat each of these atomic sql instructions */
+int problem_create_temp_tables(problem_t* pb){
   int ret;
   sqlite3_stmt* stmt;
 
   /* creating a subset */
-  ret = sqlite3_prepare(pb->db, SQL_CREATE_WORK_TABLE(pb->name, pb->sql_query), 
+  ret = sqlite3_prepare(pb->db, SQL_CREATE_WORK_TABLE(pb->pb_name, pb->sql_query), 
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
 
   sqlite3_finalize(stmt);
   if(ret) return ret; 
 
-  ret = sqlite3_prepare(pb->db, SQL_ADD_TEMPID_COL(pb->name), -1, &stmt, NULL);
+  ret = sqlite3_prepare(pb->db, SQL_ADD_TEMPID_COL(pb->pb_name), -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
 
   sqlite3_finalize(stmt);
   if(ret) return ret;
 
-  ret = sqlite3_prepare(pb->db, SQL_FILL_TEMPID(pb->name), -1, &stmt, NULL);
-  /* TODO */
-  ret = sqlite3_step(
+  ret = sqlite3_prepare(pb->db, SQL_FILL_TEMPID(pb->pb_name), -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret;
+
+  /* tempano table */
+  ret = sqlite3_prepare(pb->db, SQL_CREATE_WORK_PANOS(pb->pb_name), 
+      -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret; 
+
+  ret = sqlite3_prepare(pb->db, SQL_ADD_PTEMPID_COL(pb->pb_name), 
+      -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret;
+
+  ret = sqlite3_prepare(pb->db, SQL_FILL_PTEMPID(pb->pb_name), -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret;
+
+  ret = sqlite3_prepare(pb->db, SQL_ADD_BCOUNT_COL(pb->pb_name), 
+      -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret;
+
+  ret = sqlite3_prepare(pb->db, SQL_FILL_BCOUNT(pb->pb_name), -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  return ret;
+}
+
+int problem_drop_temp_tables(problem_t* pb){
+  int ret;
+  sqlite3_stmt* stmt;
+
+  ret = sqlite3_prepare(pb->db, SQL_DROP_WORK_TABLE(pb->pb_name), 
+      -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
+
+  sqlite3_finalize(stmt);
+  if(ret) return ret;
+
+  ret = sqlite3_prepare(pb->db, SQL_DROP_WORK_PANOS(pb->pb_name), 
+      -1, &stmt, NULL);
+  ret = sqlite3_step(stmt);
 
   sqlite3_finalize(stmt);
   return ret;
@@ -81,25 +137,25 @@ int problem_create_temp_table(problem_t* pb){
 int problem_select_count(problem_t* pb){
   int ret;
   sqlite3* stmt;
-  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_ITEMS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_ITEMS(pb->pb_name), 
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   pb->nb_items = (size_t) sqlite3_column_int(stmt, 0);
   sqlite3_finalize(stmt);
 
-  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_PANOS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_PANOS(pb->pb_name), 
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   pb->nb_panos = (size_t) sqlite3_column_int(stmt, 0);
   sqlite3_finalize(stmt);
 
-  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_SETITEMS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_SETITEMS(pb->pb_name), 
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   pb->nb_set_items = (size_t) sqlite3_column_int(stmt, 0);
   sqlite3_finalize(stmt);
 
-  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_BONUSES(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_COUNT_BONUSES(pb->pb_name), 
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   pb->nb_bonuses = (size_t) sqlite3_column_int(stmt, 0);
@@ -112,7 +168,7 @@ int problem_slot_delim(problem_t* pb){
   int ret;
   int id;
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_DELIM(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_DELIM(pb->pb_name), 
       -1, &stmt, NULL);
 
   pb->slot_limit[0] = (size_t) 0;
@@ -134,7 +190,7 @@ int problem_item_stats(problem_t* pb){
   int stat_code;
 
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_STATS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_STATS(pb->pb_name), 
       -1, &stmt, NULL);
 
   while(sqlite3_step(stmt) == SQLITE_ROW){
@@ -158,7 +214,7 @@ int problem_pano_items(problem_t* pb){
   int id = 0;
 
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_PANO_ITEMS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_PANO_ITEMS(pb->pb_name), 
       -1, &stmt, NULL);
 
   while(sqlite3_step(stmt) == SQLITE_ROW){
@@ -171,7 +227,6 @@ int problem_pano_items(problem_t* pb){
   return ret;
 }
 
-
 int problem_pano_bonuses(problem_t* pb){
   int ret;
   /* minus one is here to simplify the while loop*/
@@ -181,10 +236,10 @@ int problem_pano_bonuses(problem_t* pb){
   int stat_code;
 
   sqlite3_stmt* stmt;
-  /*wrong request*/
-  /*TODO fix*/
-  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_ITEM_STATS(pb->name), 
+  ret = sqlite3_prepare(pb->db, SQL_WORK_SELECT_PANO_BONUSES(pb->pb_name), 
       -1, &stmt, NULL);
+
+  if(ret) return ret;
 
   /* when meeting a new pano, skip nb_items id*/
   /* when meeting a new nb_items, id++*/
@@ -238,5 +293,3 @@ int problem_add_item_rows(problem_t* pb, int stat_code, int type,
 
 int problem_solve(problem_t* pb);
 
-/* free every byte allocated by problem_new and drop the table created at the
- * start*/

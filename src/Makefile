@@ -2,7 +2,7 @@ CC=g++
 CXXFLAGS= -g -Wall -Wextra -O3 
 LDLIBS= -lglpk -ljsoncpp -lsqlite3
 TARGETS= test_db.out
-OBJECTS= data_import.o
+OBJECTS= data_import.o problem.o
 
 all: $(TARGETS)
 

@@ -18,3 +18,4 @@ UPDATE mochep set tempid = rowid -1;
 
 select sum(nb_items), sum(b_count) from mochep;
 select * from mochep;
+

@@ -74,15 +74,23 @@
 
 #define ITEM_STATS_OFFSET 19
 
+#define PANOS_BONUSES_OFFSET(pb) (ITEM_STATS_OFFSET + (pb)->nb_items)
+
 /* TODO create a temp table for concerned panos */
 /* TODO check sql requests */
+
+/* TODO rethink this ugly method by using fmt strings */
+/* -> conf file with maybe conf file with format string, sprintf, 
+ * and a dedicated buffer*/
 
 #define SQL_CREATE_WORK_TABLE(name, filter) \
   "create table if not exists work_" name " as select * from items as "\
   "base_items where (" filter ") order by slot_code;"
 
 #define SQL_CREATE_WORK_PANOS(name) \
-  "create table if not exists panos_" name " as select " /*TODO*/ 
+  "create table if not exists panos_" name " as select id_pano, panos.name, "\
+  "count(*) as nb_items from work_" name " join panos on work_"\
+  name ".id_pano = panos.id group by id_pano order by id_pano;"
 
 #define SQL_ADD_TEMPID_COL(name) \
   "alter table work_" name " add tempid integer;"
@@ -90,8 +98,25 @@
 #define SQL_FILL_TEMPID(name) \
   "update table work_" name " set tempid = rowid - 1;"
 
+#define SQL_ADD_PTEMPID_COL(name) \
+  "alter table panos_" name " add tempid integer;"
+
+#define SQL_FILL_PTEMPID(name) \
+  "update table panos_" name " set tempid = rowid - 1;"
+
+#define SQL_ADD_BCOUNT_COL(name) \
+  "alter table panos_" name " add b_count integer;"
+
+#define SQL_FILL_BCOUNT(name) \
+  "update panos_" name " set b_count = (select max(bonuses.nb_items) + 1 "\
+  "from bonuses where bonuses.id_pano = panos_" name ".id_pano and "\
+  "bonuses.nb_items <= panos_" name ".nb_items);"
+
 #define SQL_DROP_WORK_TABLE(name) \
   "drop table if exists work_" name ";"
+
+#define SQL_DROP_WORK_PANOS(name) \
+  "drop table if exists panos_" name ";"
 
 #define SQL_WORK_COUNT_ITEMS(name) \
   "select count(*) from work_" name ";"
@@ -104,8 +129,8 @@
 
 #define SQL_WORK_COUNT_BONUSES(name) \
   "select sum(nb_bon) from (select max(nb_items) + 1 as nb_bon, "\
-  "bonuses.id_pano from work_" name " join bonuses on work_" name\
-  ".id_pano = bonuses.id_pano group by bonuses.id_pano);
+  "bonuses.id_pano from work_" name " join bonuses on work_" (name)\
+  ".id_pano = bonuses.id_pano group by bonuses.id_pano);"
 
 #define SQL_WORK_SELECT_ITEM_DELIM(name) \
   "select slot_code, count(*) from work_" name " group by slot_code;"
@@ -118,21 +143,21 @@
   "select tempid from work_" name " where id_pano is not null order "\
   "by id_pano;"
 
-/* TODO fix */
-#define SQL_WORK_SELECT_PANO_BONUSES(name) \
+#define SQL_SELECT_ALL_WORK_PANO(name) \
+  "select "
 
-
 #define SQL_WORK_SELECT_PANO_BONUSES(name) \
-  "select max(nb_items) + 1 as nb_bon, "\
-  "bonuses.id_pano from work_" name " join bonuses on work_" name\
-  ".id_pano = bonuses.id_pano group by bonuses.id_pano order by bonuses.id_pano;"
+  "select bonuses.id_pano as pid, bonuses.nb_items as bni, stat_code, "\
+  "value from panos_" name " join bonuses on panos_" name ".id_pano = pid "\
+  "where bni < panos_" name ".b_count order by pid, bni;" 
+
 
 typedef char short_word[32];
 typedef double stat_vector[STATS_COUNT];
 
 typedef struct problem{
   sqlite3* db;
-  short_word pb_name;
+  const char* pb_name;
   char* sql_query;
   int lvl;
   stat_vector obj_fun;
@@ -152,7 +177,7 @@ typedef struct problem{
   size_t slot_limit[SLOT_COUNT+1];
   size_t* panos_delim; /*size nb_panos+1*/
   size_t* panos_item; /*size nb_set_items*/
-  size_t* panos_bonuses_delim; /*size nb_panos+1*/
+  size_t* panos_delim_bonuses; /*size nb_panos+1*/
   stat_vector* coeff_matrix; /*size = 1 + 18 + nb_items + nb_bonuses */
 
   /* maybe going to disappear*/
@@ -168,7 +193,9 @@ problem_t* problem_new(sqlite3* db, const char* sql_query,
 
 /* TODO row creation wrapper */
 
-int problem_create_temp_table(problem_t* pb);//
+int problem_create_temp_tables(problem_t* pb);//
+
+int problem_drop_temp_tables(problem_t* pb);//
 
 int problem_select_count(problem_t* pb);//
 

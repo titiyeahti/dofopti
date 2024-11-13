@@ -329,9 +329,3 @@ int insert_panos_json(sqlite3* db, const char* path){
   return ret;
 }
 
-int insert_weapons_json(sqlite3* db, const char* path);
-
-int insert_pets_json(sqlite3* db, const char* path);
-
-int insert_mounts_json(sqlite3* db, const char* path);
-
