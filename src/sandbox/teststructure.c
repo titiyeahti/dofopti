@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef double stat_vect[52];
+typedef int stat_vect[52];
 
 typedef struct {
     stat_vect sv;
-    char name[32];
+    char name[64];
     int id;
 } a_s;
 
