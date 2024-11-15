@@ -90,4 +90,21 @@ linprob_s* new_linprob(pbdata_s* pbd);
 
 int add_pano_constraints(glp_prob* pb, pids_s pano);
 
+int solve_linprob(linprob_s* lp);
+int const_linear(linprob_s* lp, double coeffs[], const char* name);
+
+int const_linear_upper(linprob_s* lp, double coeffs[],
+    double bound, const char* name);
+
+int const_linear_lower(linprob_s* lp, double coeffs[],
+    double bound, const char* name);
+
+int const_linear_fix(linprob_s* lp, double coeffs[],
+    double bound, const char* name);
+
+int set_obj_coeff(linprob_s* lp, double coeffs[]);
+void free_linprob(linprob_s* lp);
+void print_linsol(linprob_s* lp);
+int const_lock_out_item(linprob_s* lp, const char* name);
+int const_lock_in_item(linprob_s* lp, const char* name);
 #endif

@@ -1,7 +1,7 @@
 CC=gcc
 CXXFLAGS= -g -Wall -Wextra -O3 
 LDLIBS= -lglpk -ljsoncpp -lsqlite3
-TARGETS= testglpapi.out
+TARGETS= testglpapi2.out
 OBJECTS= glpapi.o
 
 all: $(TARGETS)

@@ -342,6 +342,7 @@ linprob_s* new_linprob(pbdata_s* pbd){
   res->n = pbd->nb_items + pbd->nb_bonuses;
   res->m = STATS_COUNT;
   res->pb = glp_create_prob();
+  glp_create_index(res->pb);
   res->matrix = malloc(sizeof(double) * res->n * res->m);
   for(i=0; i<pbd->nb_items; i++)
     for(j=0; j<res->m; j++)
@@ -367,6 +368,7 @@ linprob_s* new_linprob(pbdata_s* pbd){
       glp_set_col_bnds(res->pb, i, GLP_DB, 0., 2.);
     }
   }
+
 
   /*adding bonuses variables*/
   for(i=0; i < pbd->nb_bonuses; i++){
@@ -396,16 +398,28 @@ linprob_s* new_linprob(pbdata_s* pbd){
     glp_set_mat_row(res->pb, i+1, count-1, ids, vec);
   }
 
-  glp_set_row_bnds(res->pb, 2+1, GLP_UP, 0, 2);
-  glp_set_row_bnds(res->pb, 8+1, GLP_UP, 0, 6);
-  /* no prysma for u*/
-  glp_set_row_bnds(res->pb, 9+1, GLP_UP, 0, 0);
+  glp_set_row_bnds(res->pb, slots_codes[SLOT_RING] +1, GLP_UP, 0, 2);
+  glp_set_row_bnds(res->pb, slots_codes[SLOT_DOFUS] +1, GLP_UP, 0, 6);
+  glp_set_row_bnds(res->pb, slots_codes[SLOT_PRISMA] +1, GLP_UP, 0, 1);
+
+  glp_add_rows(res->pb, 1);
+  count = 1;
+  for(j=1; j<pbd->nb_items+1; j++){
+    int code = pbd->items_data[j].slot_code;
+    if(code == slots_codes[SLOT_DOFUS] || code == slots_codes[SLOT_PRISMA]){
+      ids[count] = j;
+      count ++;
+    }
+  }
+  i = glp_get_num_rows(res->pb);
+  glp_set_row_name(res->pb, i, "DOFUS + PRISMA");
+  glp_set_row_bnds(res->pb, i, GLP_UP, 0, 6);
+  glp_set_mat_row(res->pb, i, count-1, ids, vec);
 
   /*sets (panos) constraints*/
   for(i=0; i<pbd->nb_panos; i++){
     add_pano_constraints(res->pb, pbd->panos[i]);
   }
-
 
   return res;
 }
@@ -440,6 +454,80 @@ int set_obj_coeff(linprob_s* lp, double coeffs[]){
   for(i=0; i<lp->n; i++) glp_set_obj_coef(lp->pb, i+1, output[i]);
 
   return 0;
+}
+
+int const_linear(linprob_s* lp, double coeffs[], const char* name){
+  int i, ret;
+  double output[lp->n+1];
+  int ids[lp->n+1];
+  for(i = 1; i<lp->n+1; i++) ids[i] = (double) i;
+  
+  stat_to_basis(lp->n, lp->m, lp->matrix, coeffs, output+1);
+  ret = glp_add_rows(lp->pb, 1);
+  glp_set_mat_row(lp->pb, ret, lp->n, ids, output);
+
+  if(name)
+    glp_set_row_name(lp->pb, ret, name);
+
+  return ret;
+}
+
+int const_linear_upper(linprob_s* lp, double coeffs[],
+    double bound, const char* name){
+  int ret = const_linear(lp, coeffs, name);
+  glp_set_row_bnds(lp->pb, ret, GLP_UP, bound, bound);
+  return ret;
+}
+
+int const_linear_lower(linprob_s* lp, double coeffs[],
+    double bound, const char* name){
+  int ret = const_linear(lp, coeffs, name);
+  glp_set_row_bnds(lp->pb, ret, GLP_LO, bound, bound);
+  return ret;
+}
+
+int const_linear_fix(linprob_s* lp, double coeffs[],
+    double bound, const char* name){
+  int ret = const_linear(lp, coeffs, name);
+  glp_set_row_bnds(lp->pb, ret, GLP_FX, bound, bound);
+  return ret;
+}
+
+int solve_linprob(linprob_s* lp){
+  // config parm
+  glp_iocp parm;
+  glp_init_iocp(&parm);
+  parm.presolve = GLP_ON;
+
+  // solve
+  glp_intopt(lp->pb, &parm);
+  return 0;
+}
+
+void print_linsol(linprob_s* lp){
+  int i;
+  for(i=1; i<lp->n + 1; i++){
+    double val = glp_mip_col_val(lp->pb, i);
+    if(val>0.5)
+      printf("%s %f\n", glp_get_col_name(lp->pb, i), val);
+  }
+}
+
+
+int const_lock_in_item(linprob_s* lp, const char* name){
+  int numcol = glp_find_col(lp->pb, name);
+  if(numcol)
+    glp_set_col_bnds(lp->pb, numcol, GLP_FX, 1., 1.);
+
+  return numcol;
+}
+
+int const_lock_out_item(linprob_s* lp, const char* name){
+  int numcol = glp_find_col(lp->pb, name);
+  if(numcol)
+    glp_set_col_bnds(lp->pb, numcol, GLP_FX, 0., 0.);
+
+  return numcol;
 }
 
 void free_linprob(linprob_s* lp){
