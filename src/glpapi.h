@@ -55,6 +55,13 @@ typedef struct {
   pids_s* panos; 
 } pbdata_s;
 
+typedef struct {
+  int m, n;
+  pbdata_s pbd;
+  double* matrix;
+  glp_prob* pb;
+} linprob_s;
+
 void print_statline(statline_s* sl);
 
 void print_pids(pids_s* pi);
@@ -77,5 +84,7 @@ void scalar_mult_vec(size_t n, double lambda, double input[], double output[]);
 
 int basis_to_stat(size_t n, size_t m, double matrix[],
     double input[], double output[]);
+
+lineprob_s* new_linprob(sqlite3* db);
 
 #endif

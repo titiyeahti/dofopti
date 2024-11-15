@@ -18,11 +18,13 @@ const char* const slots_names[] = {
 };
 #undef DEF
 
+#define ERR_MSG() printf("%d\n", __LINE__)
+
 int select_count_items(sqlite3* db){
   int ret;
   int nb;
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare_v2(db, "SELECT count(*) FROM items;", -1, &stmt, NULL);
+  ret = sqlite3_prepare_v2(db, "SELECT count(distinct id) FROM items join stats on items.id = id_item;", -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   nb = sqlite3_column_int(stmt, 0);
   ret = sqlite3_finalize(stmt);
@@ -33,7 +35,7 @@ int select_count_panos(sqlite3* db){
   int ret;
   int nb;
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare_v2(db, "SELECT count(*) FROM panos;", -1, &stmt, NULL);
+  ret = sqlite3_prepare_v2(db, "SELECT count(distinct id_pano) FROM items;", -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   nb = sqlite3_column_int(stmt, 0);
   ret = sqlite3_finalize(stmt);
@@ -68,11 +70,13 @@ int get_items_stats(sqlite3* db, statline_s* items_data){
     if (id != last_id){
       count++;
       items_data[count].id_pano = sqlite3_column_int(stmt, 4);
-      strcpy(items_data[count].name, (const char*) sqlite3_column_text(stmt, 3));
+      strcpy(items_data[count].name, (const char*) 
+          sqlite3_column_text(stmt, 3));
       last_id = id;
     }
 
-    items_data[count].stats[sqlite3_column_int(stmt, 1)] = sqlite3_column_int(stmt, 2);
+    items_data[count].stats[sqlite3_column_int(stmt, 1)] = 
+      sqlite3_column_int(stmt, 2);
   }
   
   ret = sqlite3_finalize(stmt);
@@ -153,7 +157,28 @@ int get_panos_info(sqlite3* db, pbdata_s* res){
 int fill_panos_id(pbdata_s* res){
   int i, j, k;
   for(i = 0; i < res->nb_panos; i++){
-    while(1){continue;}
+    /*items*/
+    /*printf("PANO id : %d\n", res->panos[i].id_pano);*/
+    k = 0;
+    for(j = 0; j < res->nb_items; j++)
+      if(res->items_data[j].id_pano == res->panos[i].id_pano){
+        res->panos[i].ids[k] = j;
+        k++;
+        if(k==res->panos[i].size)
+          break;
+      }
+
+    /* binary search */
+    k = 0;
+    for(j = 0; j < res->nb_bonuses; j++){
+      if(res->bonuses_data[j].id_pano == res->panos[i].id_pano){
+        res->panos[i].ids[k+res->panos[i].size] = j;
+        k++;
+        if(k==res->panos[i].maxbonuses)
+          break;
+      }
+    }
+
   }
 
   return 0;
@@ -165,7 +190,6 @@ int new_pbdata(sqlite3* db, pbdata_s* res){
   nb_items = select_count_items(db);
   nb_panos = select_count_panos(db);
   nb_bonuses = select_count_bonuses(db);
-
   res->nb_items = nb_items;
   res->nb_panos = nb_panos;
   res->nb_bonuses = nb_bonuses;
@@ -182,7 +206,9 @@ int new_pbdata(sqlite3* db, pbdata_s* res){
 
   ret = get_panos_info(db, res);
 
-  return 0;
+  fill_panos_id(res);
+
+  return ret;
 }
 
 void free_pbdata(pbdata_s* pbd){
@@ -195,11 +221,47 @@ void free_pbdata(pbdata_s* pbd){
   free(pbd->bonuses_data);
 }
 
-void print_statline(statline_s* sl);
+void print_statline(statline_s* sl){
+  printf("%s: ", sl->name);
+  int i;
+  for(i = 0; i < STATS_COUNT; i++)
+    if(sl->stats[i])
+      printf("%s [%d] ", stats_names[i], sl->stats[i]);
 
-void print_pids(pids_s* pi);
+  printf("\n");
+}
 
-void print_pbdata(pbdata_s* pbd);
+void print_pids(pids_s* pi){
+  int i;
+  printf("%d: ( ", pi->id_pano);
+  for(i = 0; i < pi->size; i++)
+    printf("%d ", pi->ids[i]);
+  printf(")(");
+  for(i = pi->size; i < pi->size + pi->maxbonuses; i++)
+    printf("%d ", pi->ids[i]);
+
+  printf(")\n");
+}
+
+void print_pbdata(pbdata_s* pbd){
+  int i;
+  printf("ITEMS [%d]\n", pbd->nb_items);
+  for(i = 0; i < pbd->nb_items; i++){
+    printf("%d\t", i);
+    print_statline(&(pbd->items_data[i]));
+  }
+
+  printf("\nBONUSES [%d]\n", pbd->nb_bonuses);
+  for(i = 0; i < pbd->nb_bonuses; i++){
+    printf("%d\t", i);
+    print_statline(&(pbd->bonuses_data[i]));
+  }
+
+  printf("\nPANOS IDS [%d]\n", pbd->nb_panos);
+  for(i = 0; i < pbd->nb_panos; i++){
+    print_pids(&(pbd->panos[i]));
+  }
+}
 
 void print_vec(size_t n, double vec[]){
   int j;
@@ -263,4 +325,37 @@ int basis_to_stat(size_t n, size_t m, double matrix[],
   }
 
   return 0;
+}
+
+
+lineprob_s* new_linprob(sqlite3* db){
+  lineprob_s* res = malloc(sizeof(lineprob_s));
+  new_pbdata(dn, &(res->pbd));
+  /* number of columns (variables) */
+  res->n = res->pbd.nb_items + res->pbd.nb_bonuses;
+  res->m = STATS_COUNT;
+  res->pb = glp_create_prob();
+  res->matrix = malloc(sizeof(double) * res->n * res->m);
+
+  /* TODO subject to changes */
+  glp_set_prob_name(res->pb, "miniprob");
+  glp_set_obj_name(res->pb, "maxfo");
+  glp_set_obj_dir(res->pb, GLP_MAX);
+  glp_add_cols(res->pb, res->n);
+
+  /* naming cols */
+  int i;
+  for(i=0; i<res->pbd.nb_items; i++)
+    glp_set_col_name(res->pb, i+1, res->pbd.items_data[i].name);
+  for(i=res->pbd.nb_items; i < res->n; i++)
+    glp_set_col_name(res->pb, i+1, res->pbd.items_data[i].name);
+  
+
+
+  return res;
+}
+
+void free_linprob(lineprob_s* lp){
+
+  free(lp);
 }

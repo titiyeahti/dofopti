@@ -1,12 +1,12 @@
-CC=g++
+CC=gcc
 CXXFLAGS= -g -Wall -Wextra -O3 
 LDLIBS= -lglpk -ljsoncpp -lsqlite3
-TARGETS= test_db.out
-OBJECTS=
+TARGETS= testglpapi.out
+OBJECTS= glpapi.o
 
 all: $(TARGETS)
 
-%.out: %.cpp $(OBJECTS)
+%.out: %.c $(OBJECTS)
 	$(CC) $^ $(CXXFLAGS) $(LDLIBS) -o $@
 
 clean:
