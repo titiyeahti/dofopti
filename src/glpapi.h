@@ -37,12 +37,13 @@ typedef char short_word[NAME_LEN];
 /* Contains stats for a given item or specific set bonus */
 typedef struct {
   stat_vect stats;
-  int id_pano;
+  int id_pano, slot_code;
   short_word name;
 } statline_s;
 
 /* Used to keep a link between the sets (panos) and the items part of them*/
 typedef struct {
+  short_word name;
   int id_pano, size, maxbonuses;
   /* len(ids) = size + maxbonuses */
   int* ids;
@@ -57,13 +58,13 @@ typedef struct {
 
 typedef struct {
   int m, n;
-  pbdata_s pbd;
   double* matrix;
   glp_prob* pb;
 } linprob_s;
 
 void print_statline(statline_s* sl);
 
+/*TODO UPDATE PRINTS*/
 void print_pids(pids_s* pi);
 
 void print_pbdata(pbdata_s* pbd);
@@ -85,6 +86,8 @@ void scalar_mult_vec(size_t n, double lambda, double input[], double output[]);
 int basis_to_stat(size_t n, size_t m, double matrix[],
     double input[], double output[]);
 
-lineprob_s* new_linprob(sqlite3* db);
+linprob_s* new_linprob(pbdata_s* pbd);
+
+int add_pano_constraints(glp_prob* pb, pids_s pano);
 
 #endif
