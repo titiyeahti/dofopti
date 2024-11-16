@@ -21,25 +21,28 @@ OPTIMAL LP SOLUTION FOUND
 Integer optimization begins...
 Long-step dual simplex will be used
 +   389: mip =     not found yet <=              +inf        (1; 0)
-+   732: >>>>>   1.605000000e+03 <=   2.149018069e+03  33.9% (121; 0)
++   679: >>>>>   1.579500000e+03 <=   2.149018069e+03  36.1% (98; 0)
 Solution found by heuristic: 1702.25
-Solution found by heuristic: 1892.25
-Solution found by heuristic: 1902
-Solution found by heuristic: 1946
+Solution found by heuristic: 1856.75
+Solution found by heuristic: 1924.5
++  5483: >>>>>   1.925000000e+03 <=   2.043904199e+03   6.2% (524; 343)
+Solution found by heuristic: 1934.75
++  6484: >>>>>   1.941000000e+03 <=   2.036503846e+03   4.9% (593; 421)
+Solution found by heuristic: 1960
+Solution found by heuristic: 1968
 Solution found by heuristic: 1974.5
-+  7829: mip =   1.974500000e+03 <=   2.016015353e+03   2.1% (371; 1068)
-+ 10140: mip =   1.974500000e+03 <=     tree is empty   0.0% (0; 2239)
++ 11097: mip =   1.974500000e+03 <=     tree is empty   0.0% (0; 2449)
 INTEGER OPTIMAL SOLUTION FOUND
-Writing MIP solution to 'mip2.txt'...
+Writing MIP solution to 'mip3.txt'...
 Sinistrofu Boots 1.000000
 Ilyzaelle Helmet 1.000000
 Sinistrofu Cloak 1.000000
 Sinistrofu Amulet 1.000000
 Glacial Belt 1.000000
 Ice Dofus 1.000000
+Major Vigour 1.000000
 Major Tease 1.000000
 Major Luckster 1.000000
-Major Powerhouse 1.000000
 Crimson Dofus 1.000000
 Nomad 1.000000
 Rhineetle Ring 1.000000

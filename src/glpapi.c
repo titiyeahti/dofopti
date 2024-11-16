@@ -472,6 +472,25 @@ int const_linear(linprob_s* lp, double coeffs[], const char* name){
   return ret;
 }
 
+int const_multi_simple_constraints(linprob_s* lp, double bounds[], int sign[]){
+  double coeffs[STATS_COUNT] = {0};
+  int i;
+  for(i=0; i<lp->m; i++){
+    if(bounds[i]>0.1 || -bounds[i]>0.1){
+      coeffs[i] = 1.;
+      if(sign[i] < 0)
+        const_linear_lower(lp, coeffs, bounds[i], stats_names[i]);
+      else if (sign[i]>0)
+        const_linear_upper(lp, coeffs, bounds[i], stats_names[i]);
+      else
+        const_linear_fix(lp, coeffs, bounds[i], stats_names[i]);
+      coeffs[i] = 0.;
+    }
+  }
+
+  return 0; 
+}
+
 int const_linear_upper(linprob_s* lp, double coeffs[],
     double bound, const char* name){
   int ret = const_linear(lp, coeffs, name);
@@ -512,7 +531,6 @@ void print_linsol(linprob_s* lp){
       printf("%s %f\n", glp_get_col_name(lp->pb, i), val);
   }
 }
-
 
 int const_lock_in_item(linprob_s* lp, const char* name){
   int numcol = glp_find_col(lp->pb, name);
