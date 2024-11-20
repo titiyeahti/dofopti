@@ -449,8 +449,8 @@ int add_pano_constraints(glp_prob* pb, pids_s pano){
 int set_obj_coeff(linprob_s* lp, double coeffs[]){
   double output[lp->n];
   stat_to_basis(lp->n, lp->m, lp->matrix, coeffs, output);
-
   int i;
+
   for(i=0; i<lp->n; i++) glp_set_obj_coef(lp->pb, i+1, output[i]);
 
   return 0;
@@ -529,6 +529,7 @@ void print_linsol(linprob_s* lp){
     double val = glp_mip_col_val(lp->pb, i);
     if(val>0.5)
       printf("%s %f\n", glp_get_col_name(lp->pb, i), val);
+
   }
 }
 

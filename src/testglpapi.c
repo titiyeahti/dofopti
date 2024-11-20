@@ -1,5 +1,5 @@
 #include "glpapi.h"
-#define DBFILE "bdd/testdb.db"
+#define DBFILE "bdd/db2.db"
 
 int main(void){
   int ret, i;
@@ -13,21 +13,22 @@ int main(void){
   print_pbdata(&pbd);
   */
   lp = new_linprob(&pbd);
-  print_pbdata(&pbd);
   free_pbdata(&pbd);
   ret = sqlite3_close(db);
   double coeffs[STATS_COUNT] = {0};
   coeffs[DO_NEUTRE] = 1.;
   coeffs[PUI] = .705;
   coeffs[FOR] = .705;
+  coeffs[DO] = 1.;
   coeffs[DO_CRIT] = 0.5;
 
   set_obj_coeff(lp, coeffs);
-  const_lock_in_item(lp, "Musamune");
+  const_lock_in_item(lp, "musamune");
   coeffs[DO_NEUTRE] = 0;
   coeffs[PUI] = 0;
   coeffs[FOR] = 0;
   coeffs[DO_CRIT] = 0;
+  coeffs[DO] = 0.;
   coeffs[CRIT] = 1.;
   const_linear_lower(lp, coeffs, 40., "min crit"); 
   coeffs[CRIT] = 0.;
@@ -37,7 +38,6 @@ int main(void){
   coeffs[PM] = 1.;
   const_linear_fix(lp, coeffs, 2., "min pm"); 
   solve_linprob(lp);
-  glp_print_mip(lp->pb, "mip1.txt");
   print_linsol(lp);
 
   free_linprob(lp);

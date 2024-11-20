@@ -16,27 +16,33 @@ int main(void){
   free_pbdata(&pbd);
   ret = sqlite3_close(db);
   double coeffs[STATS_COUNT] = {0};
-  coeffs[DO_EAU] = 4.;
-  coeffs[PUI] = 1.05;
-  coeffs[CHA] = 1.05;
+  coeffs[VITA] = 100.;
 
   set_obj_coeff(lp, coeffs);
-  coeffs[DO_EAU] = 0.;
-  coeffs[CHA] = 0.;
-  coeffs[PUI] = 0.;
+
 
   int sign[STATS_COUNT] = {0};
-  sign[PA] = 0; coeffs[PA] = 4.;
+  coeffs[VITA] = 0.;
+  sign[PA] = 0; coeffs[PA] = 3.;
   sign[PM] = 0; coeffs[PM] = 2.;
-  sign[VITA] = -1; coeffs[VITA] = 2555.;
-  sign[RE_PER_AIR] = -1; coeffs[RE_PER_AIR] = 25.;
-  sign[RE_PER_TERRE] = -1; coeffs[RE_PER_TERRE] = 25.;
-  sign[RE_PER_EAU] = -1; coeffs[RE_PER_EAU] = 25.;
-  sign[RE_PER_FEU] = -1; coeffs[RE_PER_FEU] = 25.;
-  sign[RE_PER_NEUTRE] = -1; coeffs[RE_PER_NEUTRE] = 20.;
+  /*
+  sign[RE_PER_AIR] = -1; coeffs[RE_PER_AIR] = 40.;
+  sign[RE_PER_FEU] = -1; coeffs[RE_PER_FEU] = 40.;
+  sign[RE_PER_TERRE] = -1; coeffs[RE_PER_TERRE] = 40.;
+  sign[RE_PER_EAU] = -1; coeffs[RE_PER_EAU] = 40.;
+  sign[RE_PER_NEUTRE] = -1; coeffs[RE_PER_NEUTRE] = 40.;
+  */
   const_multi_simple_constraints(lp, coeffs, sign);
+  const_lock_in_item(lp, "Rykke Errel's Bravery");
+  const_lock_in_item(lp, "Ivory Dofus");
+  const_lock_in_item(lp, "Dokoko");
+  const_lock_in_item(lp, "Abyssal Dofus");
+  const_lock_in_item(lp, "Lavasmith Dofus");
+  const_lock_in_item(lp, "Sparkling Silver Dofus");
+  const_lock_in_item(lp, "Emerald Dofus");
+  const_lock_out_item(lp, "Claymomore");
   solve_linprob(lp);
-  glp_print_mip(lp->pb, "mip3.txt");
+  glp_print_mip(lp->pb, "mipSacri.txt");
   print_linsol(lp);
 
   free_linprob(lp);
