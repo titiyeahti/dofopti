@@ -1,5 +1,5 @@
 #include "glpapi.h"
-#define DBFILE "bdd/testdb.db"
+#define DBFILE "bdd/db2.db"
 
 int main(void){
   int ret, i;
@@ -41,14 +41,12 @@ int main(void){
   coeffs[FOR] = 0.;
   coeffs[AGI] = 0.;
   coeffs[PA] = 1.;
-  const_linear_fix(lp, coeffs, 4., "12 pa"); 
+  const_linear_fix(lp, coeffs, 2., "12 pa"); 
   coeffs[PA] = 0.;
   coeffs[CRIT] = 1.;
-  const_linear_fix(lp, coeffs, 40., "40 critical"); 
+  const_linear_fix(lp, coeffs, 98., "100 critical"); 
   coeffs[CRIT] = 0.;
-  coeffs[VITA] = 1.;
-  const_linear_lower(lp, coeffs, 1000., "min vita"); 
-  const_lock_in_item(lp, "Blord Warrior's Cursed Scythe");
+  const_lock_in_item(lp, "blord warrior's cursed scythe");
 
   solve_linprob(lp);
   glp_print_mip(lp->pb, "mip4.txt");
