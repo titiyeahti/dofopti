@@ -1,6 +1,7 @@
 import json as jn
 import requests as rq
 import sqlite3 as sql
+import csv as csv
 
 dbfile = "pydb.db";
 
@@ -186,7 +187,7 @@ def fetch_items(con) :
         fetch_items_of_type(con, ids[0]);
 
 
-def delete_shit(con) :
+def delete_shit_dot_com(con) :
     l=[114, 169, 273, 274, 275, 276, 277, 279, 280];
     sqlshit = "delete from items where itemTypeId = ?;";
     cur = con.cursor();
@@ -219,7 +220,11 @@ if __name__== "__main__" :
     #create_tables(con);
     #fetch_item_sets(con);
     #fetch_items(con);
-    delete_shit(con);
+    #delete_shit_dot_com(con);
+    with open("slot_codes.csv", newline='') as csvfile :
+        rdr = csv.reader(csvfile, delimiter=',');
+        for row in rdr :
+            print(row[0], row[1]);
     con.close();
 
     print("tolate est racite");
