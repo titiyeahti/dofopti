@@ -30,16 +30,16 @@ sql_create = [
         "CREATE TABLE IF NOT EXISTS item_types (id INTEGER PRIMARY KEY, name TEXT, superTypeId INTEGER, categoryId INTEGER);",
         "CREATE TABLE IF NOT EXISTS item_sets (id INTEGER PRIMAEY KEY, name TEXT);",
         "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, level INTEGER, itemTypeId INTEGER, itemSetId INTEGER, criteria TEXT, \
-                FOREIGN KEY (itemSetId) REFERENCES item_sets(id), \
-                FOREIGN KEY (itemTypeId) REFERENCES item_types(id));",
-                "CREATE TABLE IF NOT EXISTS set_bonuses (setItemId INTEGER, nbItems INTEGER, carac INTEGER, val INTEGER, \
-                        FOREIGN KEY (setItemId) REFERENCES set_items(id), \
-                        FOREIGN KEY (carac) REFERENCES characteristics(id), \
-                        UNIQUE (setItemId, nbItems, carac));",
-                        "CREATE TABLE IF NOT EXISTS item_stats (itemId INTEGER, carac INTEGER, minval INTEGER, maxval INTEGER, \
-                                FOREIGN KEY (itemId) REFERENCES items(id), \
-                                FOREIGN KEY (carac) REFERENCES characteristics(id));"
-                                ];
+        FOREIGN KEY (itemSetId) REFERENCES item_sets(id), \
+        FOREIGN KEY (itemTypeId) REFERENCES item_types(id));",
+        "CREATE TABLE IF NOT EXISTS set_bonuses (setItemId INTEGER, nbItems INTEGER, carac INTEGER, val INTEGER, \
+        FOREIGN KEY (setItemId) REFERENCES set_items(id), \
+        FOREIGN KEY (carac) REFERENCES characteristics(id), \
+        UNIQUE (setItemId, nbItems, carac));",
+        "CREATE TABLE IF NOT EXISTS item_stats (itemId INTEGER, carac INTEGER, minval INTEGER, maxval INTEGER, \
+        FOREIGN KEY (itemId) REFERENCES items(id), UNIQUE (itemId, carac\
+        FOREIGN KEY (carac) REFERENCES characteristics(id));"
+        ];
 
 sql_insert = [
         "INSERT INTO effects VALUES(?, ?);",
@@ -186,6 +186,17 @@ def fetch_items(con) :
         fetch_items_of_type(con, ids[0]);
 
 
+def delete_shit(con) :
+    l=[114, 169, 273, 274, 275, 276, 277, 279, 280];
+    sqlshit = "delete from items where itemTypeId = ?;";
+    cur = con.cursor();
+    for e in l:
+        cur.execute(sqlshit, (e, ));
+
+    cur.execute("delete from item_stats where carac=0;");
+    cur.execute("delete from set_bonuses where carac=0;");
+    con.commit();
+
 if __name__== "__main__" :
     """
     i = 300;
@@ -208,6 +219,7 @@ if __name__== "__main__" :
     #create_tables(con);
     #fetch_item_sets(con);
     #fetch_items(con);
+    delete_shit(con);
     con.close();
 
     print("tolate est racite");
