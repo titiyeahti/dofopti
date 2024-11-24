@@ -18,7 +18,7 @@ const char* const slots_names[] = {
 };
 #undef DEF
 
-#define ERR_MSG() fprintf(stdout, "%d\n", __LINE__)
+#define ERR_MSG() fprintf(stderr, "%d\n", __LINE__)
 #define SQL_CHECK_ERRORS(ret) if(ret == SQLITE_ERROR) {ERR_MSG(); exit(1);} 
 
 int select_count_items(sqlite3* db){
@@ -105,7 +105,6 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
   int id = -1;
   int count = -1;
   while(sqlite3_step(stmt) == SQLITE_ROW){
-        ERR_MSG();
     id = sqlite3_column_int(stmt, 0);
     nb_slots = sqlite3_column_int(stmt, 2);
     if(id != last_id){
@@ -115,8 +114,11 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
         sprintf(bonuses_data[count].name, "%s#%d",
             sqlite3_column_text(stmt, 1),
             i+1);
+        ERR_MSG();
         bonuses_data[count].id_pano = id;
+        ERR_MSG();
         bonuses_data[count].stats[SET_BONUS] = i;
+        ERR_MSG();
       }
 
       last_id = id;
@@ -128,17 +130,14 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
       sprintf(bonuses_data[count].name, "%s#%d",
           sqlite3_column_text(stmt, 1),
           nb_slots);
+        ERR_MSG();
       bonuses_data[count].id_pano = id;
+        ERR_MSG();
       bonuses_data[count].stats[SET_BONUS] = nb_slots - 1;
+        ERR_MSG();
       last_nb_slots = nb_slots;
     }
 
-        ERR_MSG();
-    printf("%s | stat_code = %d | val = %d\n", 
-        bonuses_data[count].name,
-        sqlite3_column_int(stmt,3), 
-        sqlite3_column_int(stmt,4));
-        ERR_MSG();
     bonuses_data[count].stats[sqlite3_column_int(stmt, 3)] = 
       sqlite3_column_int(stmt, 4);
         ERR_MSG();

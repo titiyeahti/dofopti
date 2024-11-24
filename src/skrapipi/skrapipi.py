@@ -22,7 +22,9 @@ tables = [
         "item_sets", 
         "items",
         "set_bonuses",
-        "item_stats"
+        "item_stats",
+        "stat_codes",
+        "slot_codes"
         ];
 
 sql_create = [
@@ -38,8 +40,10 @@ sql_create = [
         FOREIGN KEY (carac) REFERENCES characteristics(id), \
         UNIQUE (setItemId, nbItems, carac));",
         "CREATE TABLE IF NOT EXISTS item_stats (itemId INTEGER, carac INTEGER, minval INTEGER, maxval INTEGER, \
-        FOREIGN KEY (itemId) REFERENCES items(id), UNIQUE (itemId, carac\
-        FOREIGN KEY (carac) REFERENCES characteristics(id));"
+        FOREIGN KEY (itemId) REFERENCES items(id), UNIQUE (itemId, carac)\
+        FOREIGN KEY (carac) REFERENCES characteristics(id));",
+        "CREATE TABLE IF NOT EXISTS stat_codes (caracId INTEGER, statCode INTEGER);",
+        "CREATE TABLE IF NOT EXISTS slot_codes (typeId INTEGER, slotCode INTEGER);"
         ];
 
 sql_insert = [
@@ -198,6 +202,40 @@ def delete_shit_dot_com(con) :
     cur.execute("delete from set_bonuses where carac=0;");
     con.commit();
 
+def fix_null_maxvals(con) :
+    cur = con.cursor();
+    cur.execute("update item_stats set maxval=minval WHERE maxval = 0;");
+    con.commit();
+
+def import_csv_dict(con, slotcsv, statcsv) :
+    cur = con.cursor();
+    with open(slotcsv, newline='') as csvfile :
+        rdr = csv.reader(csvfile, delimiter=',');
+        for row in rdr :
+            cur.execute("insert into slot_codes values(?, ?);", (row[0], row[1], ));
+
+    with open(statcsv, newline='') as csvfile :
+        rdr = csv.reader(csvfile, delimiter=',');
+        for row in rdr :
+            cur.execute("insert into stat_codes values(?, ?);", (row[0], row[1], ));
+
+    con.commit();
+
+
+def add_cools(con) :
+    cur = con.cursor();
+    #new columns
+    cur.execute("alter table items add column slotCode INTEGER;");
+    cur.execute("alter table item_stats add column statCode INTEGER;");
+    cur.execute("alter table set_bonuses add column statCode INTEGER;");
+    #uptade
+    cur.execute("update items set slotCode = (select slotCode from slot_codes where typeId = itemTypeId);");
+    cur.execute("update item_stats set statCode = (select statCode from stat_codes where caracId = carac);");
+    cur.execute("update set_bonuses set statCode = (select statCode from stat_codes where caracId = carac);");
+
+    con.commit();
+
+
 if __name__== "__main__" :
     """
     i = 300;
@@ -213,6 +251,13 @@ if __name__== "__main__" :
         i += 1;
     """
     con = sql.connect(dbfile);
+    cur = con.cursor();
+    cur.execute(sql_drop[8]);
+    cur.execute(sql_drop[7]);
+    create_tables(con);
+    import_csv_dict(con, "slot_codes.csv", "stat_codes.csv");
+    add_cools(con);
+    fix_null_maxvals(con);
     #fetch_effects(con);
     #fetch_characteristics(con);
     #fetch_item_types(con);
@@ -221,10 +266,6 @@ if __name__== "__main__" :
     #fetch_item_sets(con);
     #fetch_items(con);
     #delete_shit_dot_com(con);
-    with open("slot_codes.csv", newline='') as csvfile :
-        rdr = csv.reader(csvfile, delimiter=',');
-        for row in rdr :
-            print(row[0], row[1]);
     con.close();
 
     print("tolate est racite");

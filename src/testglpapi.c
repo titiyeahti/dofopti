@@ -1,5 +1,5 @@
 #include "glpapi.h"
-#define DBFILE "bdd/db2.db"
+#define DBFILE "skrapipi/pydb.db"
 
 int main(void){
   int ret, i;
@@ -8,11 +8,14 @@ int main(void){
   linprob_s* lp;
   ret = sqlite3_open(DBFILE, &db);
 
+  fprintf(stderr, "1\n");
   new_pbdata(db, &pbd);
+  fprintf(stderr, "1\n");
   /*
   print_pbdata(&pbd);
   */
   lp = new_linprob(&pbd);
+  fprintf(stderr, "1\n");
   free_pbdata(&pbd);
   ret = sqlite3_close(db);
   double coeffs[STATS_COUNT] = {0};
