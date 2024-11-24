@@ -18,8 +18,8 @@ const char* const slots_names[] = {
 };
 #undef DEF
 
-#define ERR_MSG() fprintf(stdout, "%d\n", __LINE__)
-#define SQL_CHECK_ERRORS(ret) if(ret == SQLITE_ERROR) {ERR_MSG(); exit(1);} 
+#define ERR_MSG(s) fprintf(stdout, "%d-%s\n", __LINE__, s)
+#define SQL_CHECK_ERRORS(ret) if(ret == SQLITE_ERROR) {ERR_MSG("SQL"); exit(1);} 
 
 int select_count_items(sqlite3* db){
   int ret;
@@ -50,7 +50,7 @@ int select_count_bonuses(sqlite3* db){
   int nb;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db, 
-      "select sum(b) from (select max(nbItems) as b from item_sets join set_bonuses on set_setItemId = id group by setItemId);",
+      "select sum(b) from (select max(nbItems) as b from item_sets join set_bonuses on setItemId = id group by setItemId);",
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   SQL_CHECK_ERRORS(ret)
@@ -104,8 +104,7 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
   int last_id = -1;
   int id = -1;
   int count = -1;
-  while(sqlite3_step(stmt) == SQLITE_ROW){
-        ERR_MSG();
+  while((ret=sqlite3_step(stmt)) == SQLITE_ROW){
     id = sqlite3_column_int(stmt, 0);
     nb_slots = sqlite3_column_int(stmt, 2);
     if(id != last_id){
@@ -133,15 +132,8 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
       last_nb_slots = nb_slots;
     }
 
-        ERR_MSG();
-    printf("%s | stat_code = %d | val = %d\n", 
-        bonuses_data[count].name,
-        sqlite3_column_int(stmt,3), 
-        sqlite3_column_int(stmt,4));
-        ERR_MSG();
     bonuses_data[count].stats[sqlite3_column_int(stmt, 3)] = 
       sqlite3_column_int(stmt, 4);
-        ERR_MSG();
   }
   SQL_CHECK_ERRORS(ret)
 
@@ -154,8 +146,8 @@ int get_panos_info(sqlite3* db, pbdata_s* res){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db,
-      "select count(distinct items.id), items.itemSetId, max(nbItems), items_set.name from "
-      "items join set_bonuses on set_bonuses.itemSetId = items.itemSetId "
+      "select count(distinct items.id), items.itemSetId, max(nbItems), item_sets.name "
+      "from items join set_bonuses on set_bonuses.setItemId = items.itemSetId "
       "join item_sets on item_sets.id = items.itemSetId group by items.itemSetId;",
       -1, &stmt, NULL);
 
@@ -180,7 +172,6 @@ int get_panos_info(sqlite3* db, pbdata_s* res){
 int fill_panos_id(pbdata_s* res){
   int i, j, k;
   for(i = 0; i < res->nb_panos; i++){
-    printf("%s\n", res->panos[i].name);
     /*items*/
     k = 0;
     for(j = 1; j < res->nb_items+1; j++)
@@ -191,7 +182,6 @@ int fill_panos_id(pbdata_s* res){
           break;
       }
 
-  ERR_MSG();
     /* binary search maybe*/
     k = 0;
     for(j = 0; j < res->nb_bonuses; j++){
@@ -211,13 +201,9 @@ int fill_panos_id(pbdata_s* res){
 int new_pbdata(sqlite3* db, pbdata_s* res){
   int nb_items, nb_bonuses, nb_panos;
   int ret;
-  ERR_MSG();
   nb_items = select_count_items(db);
-  ERR_MSG();
   nb_panos = select_count_panos(db);
-  ERR_MSG();
   nb_bonuses = select_count_bonuses(db);
-  ERR_MSG();
   res->nb_items = nb_items;
   res->nb_panos = nb_panos;
   res->nb_bonuses = nb_bonuses;
@@ -225,20 +211,16 @@ int new_pbdata(sqlite3* db, pbdata_s* res){
   /*WARNING*/
   res->items_data = (statline_s*) malloc((nb_items+1)*sizeof(statline_s));
 
-  ERR_MSG();
   ret = get_items_stats(db, res->items_data);
 
   res->bonuses_data = (statline_s*) malloc(nb_bonuses*sizeof(statline_s));
 
-  ERR_MSG();
   ret = get_bonuses(db, res->bonuses_data);
 
   res->panos = (pids_s*) malloc(nb_panos*sizeof(pids_s));
 
-  ERR_MSG();
   ret = get_panos_info(db, res);
 
-  ERR_MSG();
   fill_panos_id(res);
 
   return ret;
