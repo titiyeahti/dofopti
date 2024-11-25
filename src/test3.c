@@ -25,13 +25,11 @@ int main(void){
   coeffs[VITA] = 0.;
   sign[PA] = 0; coeffs[PA] = 3.;
   sign[PM] = 0; coeffs[PM] = 2.;
-  /*
   sign[RE_PER_AIR] = -1; coeffs[RE_PER_AIR] = 40.;
   sign[RE_PER_FEU] = -1; coeffs[RE_PER_FEU] = 40.;
   sign[RE_PER_TERRE] = -1; coeffs[RE_PER_TERRE] = 40.;
   sign[RE_PER_EAU] = -1; coeffs[RE_PER_EAU] = 40.;
   sign[RE_PER_NEUTRE] = -1; coeffs[RE_PER_NEUTRE] = 40.;
-  */
   const_multi_simple_constraints(lp, coeffs, sign);
   const_lock_in_item(lp, "rykke errel's bravery");
   const_lock_in_item(lp, "ivory dofus");

@@ -1,7 +1,7 @@
 CC=gcc
 CXXFLAGS= -g -Wall -Wextra -O3 -fsanitize=address
 LDLIBS= -lglpk -lsqlite3
-TARGETS= testglpapi.out test3.out test_faux.out
+TARGETS= test_pptac.out
 OBJECTS= glpapi.o
 
 all: $(TARGETS)

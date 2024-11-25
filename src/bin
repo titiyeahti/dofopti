@@ -1,0 +1,2 @@
+glp_set_mat_row: i = 27; ind[1] = -1094795586; column index out of range
+Error detected in file api/prob1.c at line 771
