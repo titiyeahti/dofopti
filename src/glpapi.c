@@ -240,7 +240,8 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
   int nb_items, nb_bonuses, nb_panos;
   int ret, i;
 
-  if(targeted_slots) memcpy(res->targeted_slots, targeted_slots, 
+  if(targeted_slots) 
+    memcpy(res->targeted_slots, targeted_slots, 
       sizeof(int)*SLOT_COUNT);
   else{
     for(i=0; i<SLOT_COUNT; i++)
@@ -647,14 +648,27 @@ int solve_linprob(linprob_s* lp){
   return 0;
 }
 
-void print_linsol(linprob_s* lp){
+void print_linsol(linprob_s* lp, pbdata_s* pbd){
   int i;
+  double vec[lp->n];
+  double stats[STATS_COUNT];
+  vec[0] = 0;
   for(i=1; i<lp->n ; i++){
-    double val = glp_mip_col_val(lp->pb, i);
-    if(val>0.5)
-      printf("%s %f\n", glp_get_col_name(lp->pb, i), val);
 
+    double val = glp_mip_col_val(lp->pb, i);
+    vec[i] = val;
+    if(val>0.5)
+      printf("%s : %s\n", 
+          i < pbd->nb_items + 1 ? slots_names[pbd->items_data[i].slot_code]: "pano", 
+          glp_get_col_name(lp->pb, i));
   }
+
+  basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
+  for(i = 0; i < STATS_COUNT; i++)
+    if(stats[i]>0.1)
+      printf("%s [%d] \n", stats_names[i], 
+          pbd->base_stats[i]+(int)stats[i]);
+
 }
 
 int const_lock_in_item(linprob_s* lp, const char* name){
