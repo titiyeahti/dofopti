@@ -10,6 +10,7 @@ int main(void){
   for(i=0; i<SLOT_COUNT; i++){
     tgtslt[i]=1;
   }
+  tgtslt[SLOT_DOFUS] = 6;
   tgtslt[SLOT_DOFUS] = 2;
   stat_vect bs = {0};
   bs[VITA] = 2145;
@@ -26,25 +27,23 @@ int main(void){
   double coeffs[STATS_COUNT] = {0};
 
   coeffs[VITA] = 1.;
+  coeffs[FOR] = 5.;
+  coeffs[RET_PA] = 10.;
   set_obj_coeff(lp, coeffs);
   coeffs[VITA] = 0.;
+  coeffs[FOR] = 0.;
+  coeffs[RET_PA] = 0.;
 
   int sign[STATS_COUNT] = {0};
-  sign[PA] = 0; coeffs[PA] = 11.;
+  sign[PA] = 0; coeffs[PA] = 12.;
   sign[PM] = 0; coeffs[PM] = 6.;
-  sign[RE_PER_AIR] = -1; coeffs[RE_PER_AIR] = 48.;
-  sign[RE_PER_FEU] = -1; coeffs[RE_PER_FEU] = 48.;
-  sign[RE_PER_TERRE] = -1; coeffs[RE_PER_TERRE] = 48.;
-  sign[RE_PER_EAU] = -1; coeffs[RE_PER_EAU] = 48.;
-  sign[RE_PER_NEUTRE] = -1; coeffs[RE_PER_NEUTRE] = 45.;
+  sign[TAC] = 0; coeffs[TAC] = 6.;
+  sign[RE_PER_AIR] = -1; coeffs[RE_PER_AIR] = 50.;
+  sign[RE_PER_FEU] = -1; coeffs[RE_PER_FEU] = 50.;
+  sign[RE_PER_TERRE] = -1; coeffs[RE_PER_TERRE] = 50.;
+  sign[RE_PER_EAU] = -1; coeffs[RE_PER_EAU] = 50.;
+  sign[RE_PER_NEUTRE] = -1; coeffs[RE_PER_NEUTRE] = 50.;
   const_multi_simple_constraints(lp, coeffs, sign);
-  const_lock_in_item(lp, "ivory dofus");
-  const_lock_in_item(lp, "emerald dofus");
-  const_lock_out_item(lp, "heavy burden");
-  const_lock_out_item(lp, "signet of fate");
-  const_lock_out_item(lp, "eternal chase");
-  const_lock_out_item(lp, "howling souls");
-  const_lock_out_item(lp, "cire's sorrow");
   solve_linprob(lp);
   glp_print_mip(lp->pb, "vita.txt");
   print_linsol(lp, &pbd);

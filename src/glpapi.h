@@ -9,7 +9,7 @@
 
 #define NAME_LEN 48
 
-#define DEF(e, s) e
+#define DEF(e, str, s) e
 
 enum stats_e{
 #include "stats.conf"

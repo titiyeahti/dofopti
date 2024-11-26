@@ -1,0 +1,29 @@
+#LEVEL
+200
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 5
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 498
+int 100
+agi 100
+pa 8
+pm 4
+#OBJECTIVE
+str 1.
+#CONSTRAINTS
+pa >= 11.
+#LOCK_ITEMS
++musamune
++iridescent pryndsight
+-shaker

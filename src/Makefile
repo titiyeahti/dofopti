@@ -1,9 +1,8 @@
 CC=gcc
 CXXFLAGS= -g -Wall -Wextra -O3 -fsanitize=address
 LDLIBS= -lglpk -lsqlite3
-TARGETS= constraint.out
-#test_pptac.out
-OBJECTS= glpapi.o
+TARGETS= dofopti.out
+OBJECTS= glpapi.o reader.o
 
 all: $(TARGETS)
 
@@ -23,8 +22,8 @@ data_import.o : data_import.cpp data_import.h
 	g++ $^ $(CXXFLAGS) $(LDLIBS) -ljsoncpp -c $@
 
 
-#%.out: %.c $(OBJECTS)
-#	$(CC) $^ $(CXXFLAGS) $(LDLIBS) -o $@
+%.out: %.c $(OBJECTS)
+	$(CC) $^ $(CXXFLAGS) $(LDLIBS) -o $@
 
 clean:
-	rm -rf *.o *.out $(TARGETS)
+	rm -rf *.o *.out *.yy.* *.tab.* $(TARGETS)

@@ -1,0 +1,92 @@
+GLPK Integer Optimizer 5.0
+931 rows, 3452 columns, 6381 non-zeros
+3452 integer variables, 3374 of which are binary
+Preprocessing...
+372 rows, 2356 columns, 3800 non-zeros
+2356 integer variables, 2278 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  8.000e+00  ratio =  8.000e+00
+Problem data seem to be well scaled
+Constructing initial basis...
+Size of triangular part is 372
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+372 rows, 2356 columns, 3800 non-zeros
+      0: obj =  -0.000000000e+00 inf =   4.000e+00 (2)
+      3: obj =  -0.000000000e+00 inf =   0.000e+00 (0)
+*    82: obj =   6.255988095e+02 inf =   4.071e-16 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
++    82: mip =     not found yet <=              +inf        (1; 0)
++   107: >>>>>   5.595250000e+02 <=   6.035958333e+02   7.9% (12; 0)
++   143: >>>>>   5.608250000e+02 <=   5.909242857e+02   5.4% (10; 13)
++   173: >>>>>   5.687250000e+02 <=   5.712511905e+02   0.4% (8; 18)
++   175: mip =   5.687250000e+02 <=     tree is empty   0.0% (0; 41)
+INTEGER OPTIMAL SOLUTION FOUND
+Writing MIP solution to 'rhum.txt'...
+back : dazzling cloak
+ring : gelano
+ring : hichete's ring
+belt : hichete's belt
+amulet : hichete's amulet
+pet : razorbuck
+shield : kloome
+hat : director grunob's hat
+boots : director grunob's boots
+weapon : director grunob's scythe
+pano : jellix set#1
+pano : hichete set#3
+pano : director grunob set#3
+% air resistance [0] 
+% earth resistance [0] 
+% fire resistance [0] 
+% melee damage [0] 
+% melee resistance [0] 
+% neutral resistance [6] 
+% ranged damage [0] 
+% ranged resistance [0] 
+% spell damage [0] 
+% water resistance [0] 
+% weapon damage [0] 
+ap [9] 
+ap parry [0] 
+ap reduction [0] 
+agility [125] 
+air damage [9] 
+air resistance [0] 
+chance [0] 
+critical [0] 
+critical damage [0] 
+critical resistance [0] 
+damage [0] 
+dodge [15] 
+earth damage [5] 
+earth resistance [0] 
+fire damage [5] 
+fire resistance [0] 
+heals [0] 
+initiative [250] 
+intelligence [25] 
+lock [-15] 
+mp [5] 
+mp parry [5] 
+mp reduction [0] 
+neutral damage [5] 
+neutral resistance [0] 
+power [95] 
+power (traps) [0] 
+prospecting [0] 
+pushback damage [183] 
+pushback resistance [0] 
+range [2] 
+reflect [0] 
+strength [0] 
+summons [1] 
+trap damage [0] 
+vitality [640] 
+water damage [5] 
+water resistance [0] 
+wisdom [25] 
+pods [1000] 
+set_bonus [4] 

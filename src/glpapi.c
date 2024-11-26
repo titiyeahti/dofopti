@@ -1,6 +1,6 @@
 #include"glpapi.h"
 
-#define DEF(e, s) s
+#define DEF(e, str, s) str
 const char* const stats_names[] = {
 #include "stats.conf"
 };
@@ -665,7 +665,6 @@ void print_linsol(linprob_s* lp, pbdata_s* pbd){
 
   basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
   for(i = 0; i < STATS_COUNT; i++)
-    if(stats[i]>0.1)
       printf("%s [%d] \n", stats_names[i], 
           pbd->base_stats[i]+(int)stats[i]);
 
