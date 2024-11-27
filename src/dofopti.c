@@ -31,7 +31,6 @@ int main(int argc, char* argv[]){
   ret = sqlite3_open(DBFILE, &db);
   ret = reader(argv[1], &lvl, bs, tgt_slots, obj_coeff, bnds, sign);
 
-
   new_pbdata(db, &pbd, bs, tgt_slots, lvl);
   ret = sqlite3_close(db);
   lp = new_linprob(&pbd);

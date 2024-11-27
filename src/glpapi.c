@@ -600,12 +600,15 @@ int const_multi_simple_constraints(linprob_s* lp, double bounds[], int sign[]){
   for(i=0; i<lp->m; i++){
     if(bounds[i]>0.1 || -bounds[i]>0.1){
       coeffs[i] = 1.;
-      if(sign[i] < 0)
+      if(sign[i] < 0){
         const_linear_lower(lp, coeffs, bounds[i], stats_names[i]);
-      else if (sign[i]>0)
+      }
+      else if (sign[i]>0){
         const_linear_upper(lp, coeffs, bounds[i], stats_names[i]);
-      else
+      }
+      else{
         const_linear_fix(lp, coeffs, bounds[i], stats_names[i]);
+      }
       coeffs[i] = 0.;
     }
   }

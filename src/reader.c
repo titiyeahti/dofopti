@@ -12,6 +12,7 @@ const char * const stats_symbols[] = {
 };
 #undef DEF
 
+#define ERR_MSG(s) fprintf(stdout, "%d-%s\n", __LINE__, s)
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
     double bnds[STATS_COUNT], int sign[STATS_COUNT]){
@@ -45,7 +46,7 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
     if(sect == SECT_ITEMS) break;
 
     char str[48];
-    char sign[3];
+    char sig[3];
     int val;
     double dval;
     /* TODO verify if fgets keeps '\n' */
@@ -100,7 +101,7 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
         break;
 
       case SECT_CONSTS :
-        if(sscanf(buffer, "%s %s %lf\n", str, sign, &dval)!= 3){
+        if(sscanf(buffer, "%s %s %lf\n", str, sig, &dval)!= 3){
           fprintf(stderr, "section de restriction incorrecta\n");
           exit(1);
         }
@@ -108,7 +109,7 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
         for(i=0; i<STATS_COUNT; i++){
           if(!strcmp(stats_symbols[i], str)){
             bnds[i] = dval;
-            switch(sign[0]) {
+            switch(sig[0]) {
               case '=' :
                 sign[i] = 0;
                 break;
