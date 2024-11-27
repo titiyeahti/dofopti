@@ -18,7 +18,6 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
   int ret;
   int i, sect;
   char buffer[BUFF_LEN];
-  int count;
   FILE* stream = fopen(pathname, "r");
   if (!stream) {
     fprintf(stderr, "cannot open file for reading\n");
@@ -26,12 +25,9 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
   }
 
   sect = -1;
-  count = 0;
   while(fgets(buffer, BUFF_LEN - 1, stream)){
-    printf("%d\n", count++);
     if(buffer[0] == '#'){
       buffer[strlen(buffer)-1] = '\0';
-      puts(buffer+1);
       for(i = 0; i<SECT_COUNT; i++)
         if(!strcmp(sections_names[i], (buffer+1))){
           sect = i;
