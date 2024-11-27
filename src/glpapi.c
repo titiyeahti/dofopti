@@ -726,10 +726,15 @@ void print_linsol(linprob_s* lp, pbdata_s* pbd){
 
     double val = glp_mip_col_val(lp->pb, i);
     vec[i] = val;
-    if(val>0.5)
-      printf("%s : %s\n", 
-          i < pbd->nb_items + 1 ? slots_names[pbd->items_data[i].slot_code]: "pano", 
-          glp_get_col_name(lp->pb, i));
+    if(val>0.5){
+      if (i < pbd->nb_items+1)
+        printf("%s : %s [%d]\n", slots_names[pbd->items_data[i].slot_code], 
+          glp_get_col_name(lp->pb, i), (int) val);
+      else if (i >= pbd->nb_items + pbd->nb_bonuses + 1)
+        printf("%s [%d]\n", glp_get_col_name(lp->pb, i), (int) val);
+      else 
+        printf("%s\n", glp_get_col_name(lp->pb, i));
+    }
   }
 
   basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
