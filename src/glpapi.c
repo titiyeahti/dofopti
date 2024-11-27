@@ -51,14 +51,14 @@ int select_count_items(sqlite3* db, int level){
   int nb;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db, 
-  /*    "SELECT count(distinct id) FROM items;", -1, &stmt, NULL);*/
+      /*    "SELECT count(distinct id) FROM items;", -1, &stmt, NULL);*/
       "SELECT count(distinct id) FROM items where level <= ?;", -1, &stmt, NULL);
   ret = sqlite3_bind_int(stmt, 1, level);
 
   SQL_CHECK_ERRORS(ret)
-  ret = sqlite3_step(stmt);
+    ret = sqlite3_step(stmt);
   SQL_CHECK_ERRORS(ret)
-  nb = sqlite3_column_int(stmt, 0);
+    nb = sqlite3_column_int(stmt, 0);
   ret = sqlite3_finalize(stmt);
   return nb;
 }
@@ -70,7 +70,7 @@ int select_count_panos(sqlite3* db){
   ret = sqlite3_prepare_v2(db, "SELECT count(distinct itemSetId) FROM items where itemSetId > -1;", -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   SQL_CHECK_ERRORS(ret)
-  nb = sqlite3_column_int(stmt, 0);
+    nb = sqlite3_column_int(stmt, 0);
   ret = sqlite3_finalize(stmt);
   return nb;
 }
@@ -84,7 +84,7 @@ int select_count_bonuses(sqlite3* db){
       -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   SQL_CHECK_ERRORS(ret)
-  nb = sqlite3_column_int(stmt, 0);
+    nb = sqlite3_column_int(stmt, 0);
   ret = sqlite3_finalize(stmt);
   return nb;
 }
@@ -121,7 +121,7 @@ int get_items_stats(sqlite3* db, statline_s* items_data, int level){
   }
   SQL_CHECK_ERRORS(ret)
 
-  ret = sqlite3_finalize(stmt);
+    ret = sqlite3_finalize(stmt);
 
   return ret;
 }
@@ -173,7 +173,7 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
   }
   SQL_CHECK_ERRORS(ret)
 
-  ret = sqlite3_finalize(stmt);
+    ret = sqlite3_finalize(stmt);
   return ret;
 }
 
@@ -197,7 +197,7 @@ int get_panos_info(sqlite3* db, pbdata_s* res){
   }
   SQL_CHECK_ERRORS(ret)
 
-  ret = sqlite3_finalize(stmt);
+    ret = sqlite3_finalize(stmt);
   return ret;
 }
 
@@ -242,7 +242,7 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
 
   if(targeted_slots) 
     memcpy(res->targeted_slots, targeted_slots, 
-      sizeof(int)*SLOT_COUNT);
+        sizeof(int)*SLOT_COUNT);
   else{
     for(i=0; i<SLOT_COUNT; i++)
       res->targeted_slots[i] = 1;
@@ -256,17 +256,19 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
   else
     res->level = level;
 
-  if(base_stats) memcpy(res->base_stats, base_stats, sizeof(stat_vect));
-  else {
-    for(i=0; i<STATS_COUNT; i++){
-      res->base_stats[i] = 0;
-    }
+  for(i=0; i<STATS_COUNT; i++)
+    res->base_stats[i] = 0;
 
-    res->base_stats[PA] = res->level >= 100 ? 7 : 6;
-    res->base_stats[PM] = 3;
-    res->base_stats[PODS] = 1000;
-    res->base_stats[VITA] = 50 + 5*res->level;
-    res->base_stats[INVO] = 1;
+  res->base_stats[PA] = res->level >= 100 ? 7 : 6;
+  res->base_stats[PM] = 3;
+  res->base_stats[PODS] = 1000;
+  res->base_stats[VITA] = 50 + 5*res->level;
+  res->base_stats[INVO] = 1;
+  res->base_stats[PP] = 100;
+
+  if (base_stats) {
+    for(i=0; i<STATS_COUNT; i++)
+      res->base_stats[i] += base_stats[i];
   }
 
   nb_items = select_count_items(db, res->level);
@@ -524,16 +526,60 @@ int add_pano_constraints(glp_prob* pb, pids_s pano){
   return 0;
 }
 
+int stats_repartition(glp_prob* pb, int level){
+  int first_col, i, j, id, rownum;
+  int ids[NB_COLS_FOR_STATS+1];
+  double val[NB_COLS_FOR_STATS+1];
+  int stat_rep[NB_ELEMS] = {AGI, CHA, INT, FOR};
+  short_word name;
+
+  first_col = glp_add_cols(pb, NB_COLS_FOR_STATS);
+  id = first_col;
+  for(i=0; i<NB_ELEMS; i++)
+    for(j=0; j<NB_COLS_PER_ELEM; j++){
+      sprintf(name, "%s-%d", stats_names[stat_rep[i]], j+1);
+      glp_set_col_name(pb, id, name);
+      glp_set_col_bnds(pb, id, GLP_DB, 0., 100.);
+      glp_set_col_kind(pb, id, GLP_IV);
+      ids[id - first_col + 1] = id;
+      val[id - first_col + 1] = (double) (j + 1);
+      id ++;
+    }
+
+  glp_set_col_name(pb, id, stats_names[VITA]);
+  glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
+  glp_set_col_kind(pb, id, GLP_IV);
+  ids[id - first_col + 1] = id;
+  val[id - first_col + 1] = 1.;
+
+  id++;
+
+  glp_set_col_name(pb, id, stats_names[SA]);
+  glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
+  glp_set_col_kind(pb, id, GLP_IV);
+  ids[id - first_col + 1] = id;
+  val[id - first_col + 1] = 3.;
+
+  rownum = glp_add_rows(pb, 1);
+  glp_set_mat_row(pb, rownum, NB_COLS_FOR_STATS, ids, val);
+  glp_set_row_name(pb, rownum, "carac distribution");
+  glp_set_row_bnds(pb, rownum, GLP_DB, 0., (level-1) * 5.);
+
+  return 0;
+}
+
 linprob_s* new_linprob(pbdata_s* pbd){
-  int i, j;
+  int i, j, items_bonuses;
+  items_bonuses = pbd->nb_items + pbd->nb_bonuses;
 
   linprob_s* res = malloc(sizeof(linprob_s));
   /* + 1 is for bases stats */
-  res->n = pbd->nb_items + pbd->nb_bonuses + 1;
+  res->n = items_bonuses + NB_COLS_FOR_STATS + 1;
   res->m = STATS_COUNT;
   res->pb = glp_create_prob();
   glp_create_index(res->pb);
   res->matrix = malloc(sizeof(double) * res->n  * res->m);
+
   for(j=0; j<res->m; j++)
     res->matrix[j] = pbd->base_stats[j];
 
@@ -543,9 +589,28 @@ linprob_s* new_linprob(pbdata_s* pbd){
 
   for(i=0; i<pbd->nb_bonuses; i++)
     for(j=0; j<res->m; j++)
-      /*+1 for base_stats*/
       res->matrix[(i+pbd->nb_items+1)*res->m + j] = pbd->bonuses_data[i].stats[j];
 
+  for(i=0; i<NB_COLS_FOR_STATS; i++)
+    for(j=0; j<res->m; j++)
+      res->matrix[(i+items_bonuses+1)*res->m + j] = 0.;
+
+  int stat_rep[NB_ELEMS] = {AGI, CHA, INT, FOR};
+  /* elementary stats */
+  for(i=0; i<NB_ELEMS; i++)
+    for(j=0; j<NB_COLS_PER_ELEM; j++)
+      res->matrix[(i*NB_COLS_PER_ELEM+j+items_bonuses+1)*res->m + 
+        stat_rep[i]] = 1.;
+
+  ERR_MSG("ekip");
+  res->matrix[(NB_COLS_PER_ELEM*NB_ELEMS+items_bonuses+1)*res->m +
+    VITA] = 1.;
+
+  ERR_MSG("ekip");
+  res->matrix[(NB_COLS_PER_ELEM*NB_ELEMS+items_bonuses+1+1)*res->m +
+    SA] = 1.;
+
+  ERR_MSG("ekip");
   glp_set_prob_name(res->pb, "pb_name");
   glp_set_obj_name(res->pb, "obj_func");
   glp_set_obj_dir(res->pb, GLP_MAX);
@@ -556,9 +621,10 @@ linprob_s* new_linprob(pbdata_s* pbd){
   /*sets (panos) constraints*/
   for(i=0; i<pbd->nb_panos; i++){
     /*if(!pbd->panos[i].size) continue;*/
-
     add_pano_constraints(res->pb, pbd->panos[i]);
   }
+
+  stats_repartition(res->pb, pbd->level);
 
   return res;
 }
@@ -580,7 +646,7 @@ int const_linear(linprob_s* lp, double coeffs[], const char* name, double* const
   double output[lp->n];
   int ids[lp->n]={};
   for(i = 0; i<lp->n; i++) ids[i] = i;
-  
+
   stat_to_basis(lp->n, lp->m, lp->matrix, coeffs, output);
   rownum = glp_add_rows(lp->pb, 1);
 
@@ -668,8 +734,8 @@ void print_linsol(linprob_s* lp, pbdata_s* pbd){
 
   basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
   for(i = 0; i < STATS_COUNT; i++)
-      printf("%s [%d] \n", stats_names[i], 
-          pbd->base_stats[i]+(int)stats[i]);
+    printf("%s [%d] \n", stats_names[i], 
+        pbd->base_stats[i]+(int)stats[i]);
 
 }
 

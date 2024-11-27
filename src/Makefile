@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -g -Wall -Wextra -O3 -Iconfigfiles
+CFLAGS= -g -Wall -Wextra -O3 -Iconfigfiles -fsanitize=address
 LDLIBS= -lglpk -lsqlite3
 TARGETS= dofopti.out
 OBJECTS= glpapi.o reader.o

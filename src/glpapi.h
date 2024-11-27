@@ -8,6 +8,10 @@
 #include<sqlite3.h>
 
 #define NAME_LEN 48
+/* 4*4+2 */
+#define NB_COLS_FOR_STATS 18
+#define NB_COLS_PER_ELEM 4
+#define NB_ELEMS 4
 
 #define DEF(e, str, s) e
 

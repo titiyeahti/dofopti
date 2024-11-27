@@ -17,8 +17,8 @@ cha 100
 str 498
 int 100
 agi 100
-pa 8
-pm 4
+pa 1
+pm 1
 #OBJECTIVE
 str 1.
 pui 1.

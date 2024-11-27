@@ -14,13 +14,14 @@ prysmaradite 1
 pet 1
 #BASE_STATS
 cha 100
-str 498
+str 100
 int 100
 agi 100
-pa 8
-pm 4
+pa 1
+pm 1
 #OBJECTIVE
-str -1.
+str 1.
+pui 1.
 #CONSTRAINTS
 vit >= 2999
 #LOCK_ITEMS
