@@ -37,6 +37,6 @@ export async function TreatJson(Success, Fail){
         for (var o = 0; o < byteArray.length; o += 1){
             c += String.fromCharCode(byteArray[o]);
         }
-        await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c));
+        await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c), jdata.Result);
     });
 }

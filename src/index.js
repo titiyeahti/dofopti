@@ -122,7 +122,31 @@ if (process.env.DISCORD_TOKEN != null){
 
             await RunOptimisationAsync();
 
-            await TreatJson(async (link) => {
+            await TreatJson(async (link, result) => {
+                    const random = Math.floor(Math.random() * 6);
+                    var toPrint;
+
+                    if (random < 1){
+                        toPrint = "C’est du lourd, tu crames les mobs ! 🔥💥"
+                    }
+                    else if (random < 2){
+                        toPrint = "Des dégâts qui font pleurer les boss ! 😭👊"
+                    }
+                    else if (random < 2){
+                        toPrint = "T’as sorti l’artillerie lourde, wow ! 🛡️💣"
+                    }
+                    else if (random < 3){
+                        toPrint = "Tu vas rouler sur eux comme un bulldozer ! 🚜💥"
+                    }
+                    else if (random < 4){
+                        toPrint = "C’est plus du DPS, c’est un génocide ! ☠️🔥"
+                    }
+                    else{
+                        toPrint = "Un DPS de légende, on devrait écrire une saga là-dessus ! 📖⚡"
+                    }
+
+                    toPrint = '**[' + result + '💥]** ' + toPrint;
+                    await interaction.followUp(toPrint)
                     await interaction.followUp(link)
                 },
                 async (err) => {
