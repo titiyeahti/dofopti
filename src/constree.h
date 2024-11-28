@@ -33,6 +33,8 @@ constree_s* constree_from_str(const char* str);
 
 int symbol_to_stat(char symbol[3]);
 
+constree_s * eval(constree_s* ct);
+
 void print_constree(constree_s* ct);
 
 void free_constree(constree_s** ct);

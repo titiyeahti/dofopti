@@ -2,6 +2,20 @@
 
 json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   int i;
+  /*BACK*/
+  int slt[10] = {
+    SLOT_BACK,
+    SLOT_HAT,
+    SLOT_BELT,
+    SLOT_BOOTS,
+    SLOT_AMU,
+    SLOT_RING,
+    SLOT_DOFUS,
+    SLOT_SHIELD,
+    SLOT_WEAPON,
+    SLOT_PET
+  };
+
   json_object* ret = json_object_new_object();
 
   json_object* bz_carac = json_object_new_array_ext(12);
@@ -19,7 +33,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   json_object_array_add(bz_carac, json_object_new_int(0));
   /*invo*/
   json_object_array_add(bz_carac, json_object_new_int(pbd->base_stats[INVO]));
-  
+
   json_object_object_add(ret, "BaseCaracs", bz_carac);
 
   json_object* points = json_object_new_array_ext(6);
@@ -50,31 +64,26 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   json_object_object_add(ret, "AdditionalPoints", points);
 
   json_object_object_add(ret, "Level", json_object_new_int(pbd->level));
+  printf("obj val %lf\n", glp_mip_obj_val(lp->pb));
+  json_object_object_add(ret, "Result", json_object_new_double(glp_mip_obj_val(lp->pb)));
   /*boolean stuff*/
   json_object_object_add(ret, "Poney", json_object_new_boolean(0));
   json_object_object_add(ret, "PuissanceCarac", json_object_new_boolean(0));
   json_object_object_add(ret, "AllowDamage", json_object_new_boolean(0));
   json_object_object_add(ret, "ExoPA", 
-    json_object_new_boolean(pbd->base_stats[PA] - (pbd->level >= 100 ? 7 : 6)));
+      json_object_new_boolean(pbd->base_stats[PA] - (pbd->level >= 100 ? 7 : 6)));
   json_object_object_add(ret, "ExoPM", 
-    json_object_new_boolean(pbd->base_stats[PM] - 3));
+      json_object_new_boolean(pbd->base_stats[PM] - 3));
   json_object_object_add(ret, "ExoPO", 
-    json_object_new_boolean(pbd->base_stats[PO]));
+      json_object_new_boolean(pbd->base_stats[PO]));
 
   /* cape, chapeau, ceinture, bottes, collier, anneau anneau, dofus, bouclier, arme, pet
    * + sept slots vides*/
-  
+
   json_object* numpyx = json_object_new_array_ext(17);
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_BACK]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_HAT]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_BELT]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_BOOTS]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_AMU]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_RING]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_DOFUS]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_SHIELD]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_WEAPON]));
-  json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[SLOT_PET]));
+  for(j=0; j<10; j++){
+    json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[slt[j]]));
+  }
 
   /*for reasons*/
   for(i = 0; i<7; i++) 
@@ -103,84 +112,17 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
     }
   }
 
-
-
   /* DO YOU WANT TO CREVER */
   json_object* itids = json_object_new_array_ext(17);
-  /*BACK*/
-  json_object* back = json_object_new_array_ext(pbd->targeted_slots[SLOT_BACK]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_BACK)
-      json_object_array_add(back, json_object_new_int(ids[i]));
 
-  json_object_array_add(itids, back);
+  for(j=0; j<10; j++){
+    json_object* arr = json_object_new_array_ext(pbd->targeted_slots[slt[j]]);
+    for(i=0; i<nbi; i++)
+      if(slot_codes[i] == slt[j])
+        json_object_array_add(arr, json_object_new_int(ids[i]));
 
-  /*HAT*/
-  json_object* hat = json_object_new_array_ext(pbd->targeted_slots[SLOT_HAT]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_HAT)
-      json_object_array_add(hat, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, hat);
-
-  /*BELT*/
-  json_object* belt = json_object_new_array_ext(pbd->targeted_slots[SLOT_BELT]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_BELT)
-      json_object_array_add(belt, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, belt);
-
-  /*BOOTS*/
-  json_object* boots = json_object_new_array_ext(pbd->targeted_slots[SLOT_BOOTS]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_BOOTS)
-      json_object_array_add(boots, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, boots);
-
-  /*AMU*/
-  json_object* amu = json_object_new_array_ext(pbd->targeted_slots[SLOT_AMU]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_AMU)
-      json_object_array_add(amu, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, amu);
-
-  json_object* ring = json_object_new_array_ext(pbd->targeted_slots[SLOT_RING]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_RING)
-      json_object_array_add(ring, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, ring);
-
-  json_object* dofus = json_object_new_array_ext(pbd->targeted_slots[SLOT_DOFUS]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_DOFUS)
-      json_object_array_add(dofus, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, dofus);
-
-  json_object* shield = json_object_new_array_ext(pbd->targeted_slots[SLOT_SHIELD]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_SHIELD)
-      json_object_array_add(shield, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, shield);
-
-  json_object* weapon = json_object_new_array_ext(pbd->targeted_slots[SLOT_WEAPON]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_WEAPON)
-      json_object_array_add(weapon, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, weapon);
-
-  json_object* pet = json_object_new_array_ext(pbd->targeted_slots[SLOT_PET]);
-  for(i=0; i<nbi; i++)
-    if(slot_codes[i] == SLOT_PET)
-      json_object_array_add(pet, json_object_new_int(ids[i]));
-
-  json_object_array_add(itids, pet);
+    json_object_array_add(itids, arr);
+  }
 
   for(i=0; i<7; i++){
     json_object_array_add(itids, json_object_new_array());

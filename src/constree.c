@@ -52,15 +52,13 @@ constree_s* constree_from_str(const char* str) {
 
     d = constree_from_str(str+1);
     a = new_braces(&d);
-    if(str[count+1] == '\0') return a;
-    ERR_MSG("dot");
+    if(str[count+1] != '|' && str[count+1] != '&') return a;
     c = constree_from_str(str+count+2);
     if(str[count+1] == '&') type = AND;
     else if(str[count+1] == '|') type = OR;
     else exit(1);
 
     b = new_node(type, &a, &c);
-
     return b;
   }
   else {
@@ -77,20 +75,35 @@ constree_s* constree_from_str(const char* str) {
 
     a = new_leaf(stat, sign, val); 
 
-    if(endptr[0] == '\0' || endptr[0] == ')') {
-      ERR_MSG(endptr);
+    if(endptr[0] != '&' && endptr[0] != '|')
       return a;
-    }
 
     c = constree_from_str(endptr+1);
-    ERR_MSG(endptr+1);
     if(endptr[0] == '&') type = AND;
     else if(endptr[0] == '|') type = OR;
     else exit(1);
-    ERR_MSG("dot");
     b = new_node(type, &a, &c);
 
     return b;
+  }
+}
+
+constree_s * eval(constree_s* ct){
+  if(!ct) return NULL;
+  switch (ct->t){
+    case LEAF :
+      if (ct->leaf.stat < 0)
+        return NULL;
+      else 
+        return new_leaf(ct->leaf.stat, ct->leaf.sign, ct->leaf.val);
+    case BRACES :
+      return new_braces(eval(ct->braces));
+    case OR :
+    case AND :
+      return new_node(ct->t, ct->node.lm, ct->node.rm);
+    default :
+      return NULL;
+
   }
 }
 
@@ -113,8 +126,7 @@ void print_constree_aux(constree_s* ct){
   if(!ct) return;
   switch (ct->t) {
     case LEAF :
-      if(ct->leaf.stat > 0)
-        printf("%s %d %d", stats_names[ct->leaf.stat], ct->leaf.sign,
+        printf("%d %d %d", ct->leaf.stat, ct->leaf.sign,
           ct->leaf.val);
       break;
       

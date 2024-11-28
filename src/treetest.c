@@ -35,6 +35,9 @@ int main(){
 */
   ct5 = constree_from_str(str1);
   print_constree(ct5);
+  ct1 = eval(ct5);
+  print_constree(ct1);
   free_constree(&ct5);
+  free_constree(&ct1);
   return 0;
 }
