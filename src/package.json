@@ -1,8 +1,10 @@
 {
   "type": "module",
   "dependencies": {
+    "@msgpack/msgpack": "^3.0.0-beta2",
     "child_process": "^1.0.2",
     "discord.js": "^14.16.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "msgpackr": "^1.11.2"
   }
 }
