@@ -4,3 +4,5 @@
 *.tab.*
 
 .idea/
+
+src/node_modules/

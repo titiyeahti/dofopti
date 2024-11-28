@@ -1,0 +1,54 @@
+GLPK Integer Optimizer 5.0
+740 rows, 4917 columns, 13993 non-zeros
+4917 integer variables, 4782 of which are binary
+Preprocessing...
+740 rows, 4915 columns, 13987 non-zeros
+4915 integer variables, 4780 of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  8.000e+02  ratio =  8.000e+02
+GM: min|aij| =  1.778e-01  max|aij| =  5.623e+00  ratio =  3.162e+01
+EQ: min|aij| =  3.162e-02  max|aij| =  1.000e+00  ratio =  3.162e+01
+2N: min|aij| =  2.344e-02  max|aij| =  1.500e+00  ratio =  6.400e+01
+Constructing initial basis...
+Size of triangular part is 740
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+740 rows, 4915 columns, 13987 non-zeros
+      0: obj =   2.700000000e+02 inf =   9.197e+01 (9)
+     46: obj =   4.634976923e+02 inf =   4.441e-16 (0)
+*   389: obj =   2.315157763e+03 inf =   3.691e-14 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
++   389: mip =     not found yet <=              +inf        (1; 0)
++   732: >>>>>   1.605000000e+03 <=   2.149018069e+03  33.9% (121; 0)
+Solution found by heuristic: 1702.25
+Solution found by heuristic: 1892.25
+Solution found by heuristic: 1902
+Solution found by heuristic: 1946
+Solution found by heuristic: 1974.5
++  7829: mip =   1.974500000e+03 <=   2.016015353e+03   2.1% (371; 1068)
++ 10140: mip =   1.974500000e+03 <=     tree is empty   0.0% (0; 2239)
+INTEGER OPTIMAL SOLUTION FOUND
+Writing MIP solution to 'mip2.txt'...
+Sinistrofu Boots 1.000000
+Ilyzaelle Helmet 1.000000
+Sinistrofu Cloak 1.000000
+Sinistrofu Amulet 1.000000
+Glacial Belt 1.000000
+Ice Dofus 1.000000
+Major Tease 1.000000
+Major Luckster 1.000000
+Major Powerhouse 1.000000
+Crimson Dofus 1.000000
+Nomad 1.000000
+Rhineetle Ring 1.000000
+Bramble Wall 1.000000
+Belladonna's Cruelty 1.000000
+Amethyst and Indigo Rhineetle 1.000000
+Pillar of Ephedrya 1.000000
+sinistrofu set#3 1.000000
+glacial set#1 1.000000
+ilyzaelle set#1 1.000000
+rhineetle set#1 1.000000
+evils of ephedrya#3 1.000000
