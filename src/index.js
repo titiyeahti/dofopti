@@ -2,6 +2,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 import {TreatJson} from './dofusDbConverter.js'
 import {MakeInputTemplate, MakeInputHeader, RunOptimisationAsync} from "./optimizer.js";
+import {CachedRequest, CachedRequestArray} from "./cachedRequest.js";
 
 function TreatOptimisationSucceeded(result){
     global.Success = true;
@@ -16,7 +17,6 @@ function TreatOptimisationFailed(err) {
 import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} from 'discord.js';
 import {writeFileSync} from "fs";
 
-var editedTemplate = ""
 
 const client = new Client({
     intents: [
@@ -32,6 +32,9 @@ const commands = [
     new SlashCommandBuilder()
         .setName('tititemplate')
         .setDescription('Get a text template to modify!'),
+    new SlashCommandBuilder()
+        .setName('clear_template')
+        .setDescription('Reset your text template to default')
 ];
 
 
@@ -58,12 +61,24 @@ if (process.env.DISCORD_TOKEN != null){
 
 // Template text to send when the command is called
     const TEMPLATE_TEXT = MakeInputTemplate()
-    const HEADER_TEXT = MakeInputHeader()
 
 
     client.on('interactionCreate', async (interaction) => {
+        if (interaction.isCommand() && interaction.commandName === 'clear_template'){
+            CachedRequests.SetRequest(interaction.user.id, TEMPLATE_TEXT)
+            await interaction.deferReply();
+            await interaction.followUp({
+                content: `Cleared your cache !`,
+                ephemeral: false,
+            });
+        }
         if (interaction.isCommand() && interaction.commandName === 'tititemplate') {
 
+            var user = CachedRequests.GetRequest(interaction.user.id)
+            var baseText = TEMPLATE_TEXT;
+            if (user){
+                baseText = user.request;
+            }
             const modal = new ModalBuilder()
                 .setCustomId('tititemplate_modal')
                 .setTitle('Edit Template');
@@ -73,7 +88,7 @@ if (process.env.DISCORD_TOKEN != null){
                 .setLabel('Template')
                 .setStyle(TextInputStyle.Paragraph)
                 .setPlaceholder('Edit the template text here...')
-                .setValue(TEMPLATE_TEXT);
+                .setValue(baseText);
 
             const actionRow = new ActionRowBuilder().addComponents(textInput);
             modal.addComponents(actionRow);
@@ -89,7 +104,7 @@ if (process.env.DISCORD_TOKEN != null){
         if (interaction.isModalSubmit() && interaction.customId === 'tititemplate_modal') {
             console.log('Modal submitted!');
 
-            editedTemplate = interaction.fields.getTextInputValue('template_text_input');
+            const editedTemplate = interaction.fields.getTextInputValue('template_text_input');
             console.log('Edited template:', editedTemplate);
 
             try {
@@ -98,6 +113,7 @@ if (process.env.DISCORD_TOKEN != null){
                     content: `Input received :\n\`\`\`${editedTemplate}\`\`\``,
                     ephemeral: false,
                 });
+                CachedRequests.SetRequest(interaction.user.id, editedTemplate)
             } catch (error) {
                 console.error('Error while handling modal submission:', error);
                 return
@@ -115,7 +131,8 @@ if (process.env.DISCORD_TOKEN != null){
         }
 
     });
-// Login the bot
+    
+    const CachedRequests = new CachedRequestArray();
     client.login(process.env.DISCORD_TOKEN);
 }
 
