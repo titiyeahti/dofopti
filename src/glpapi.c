@@ -109,6 +109,7 @@ int get_items_stats(sqlite3* db, statline_s* items_data, int level){
       count++;
       for(i = 0; i<STATS_COUNT; i++) items_data[count].stats[i] = 0; 
       items_data[count].id_pano = sqlite3_column_int(stmt, 4);
+      items_data[count].id = id;
       strcpy(items_data[count].name, (const char*) 
           sqlite3_column_text(stmt, 3));
       items_data[count].slot_code = sqlite3_column_int(stmt, 5);

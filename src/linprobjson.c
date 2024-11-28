@@ -1,6 +1,6 @@
 #include "linprobjson.h"
 
-json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
+json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   int i;
   json_object* ret = json_object_new_object();
 
@@ -82,8 +82,6 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   json_object_object_add(ret, "NumPicks", numpyx);
 
-  sqlite3_stmt* stmt;
-
   int nbi = 0;
   for(i=0; i<SLOT_COUNT; i++){
     nbi+= pbd->targeted_slots[i];
@@ -96,13 +94,8 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
   for(i=1; i<pbd->nb_items+1; i++){
     double val = glp_mip_col_val(lp->pb, i);
     if(val>0.5){
-      sqret = sqlite3_prepare_v2(db, 
-          "select id, slotCode from items where name = ? limit 1;", -1, &stmt, NULL);
-      sqret = sqlite3_bind_text(stmt, 1, glp_get_col_name(lp->pb, i), -1, NULL);
-      sqret = sqlite3_step(stmt);
-      ids[count] = sqlite3_column_int(stmt, 0);
-      slot_codes[count] = sqlite3_column_int(stmt, 1);
-      sqret = sqlite3_finalize(stmt);
+      ids[count] = pbd->items_data[i].id;
+      slot_codes[count] = pbd->items_data[i].slot_code;
       count++;
 
       if(count == nbi)
@@ -114,6 +107,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   /* DO YOU WANT TO CREVER */
   json_object* itids = json_object_new_array_ext(17);
+  /*BACK*/
   json_object* back = json_object_new_array_ext(pbd->targeted_slots[SLOT_BACK]);
   for(i=0; i<nbi; i++)
     if(slot_codes[i] == SLOT_BACK)
@@ -121,6 +115,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   json_object_array_add(itids, back);
 
+  /*HAT*/
   json_object* hat = json_object_new_array_ext(pbd->targeted_slots[SLOT_HAT]);
   for(i=0; i<nbi; i++)
     if(slot_codes[i] == SLOT_HAT)
@@ -128,6 +123,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   json_object_array_add(itids, hat);
 
+  /*BELT*/
   json_object* belt = json_object_new_array_ext(pbd->targeted_slots[SLOT_BELT]);
   for(i=0; i<nbi; i++)
     if(slot_codes[i] == SLOT_BELT)
@@ -135,6 +131,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   json_object_array_add(itids, belt);
 
+  /*BOOTS*/
   json_object* boots = json_object_new_array_ext(pbd->targeted_slots[SLOT_BOOTS]);
   for(i=0; i<nbi; i++)
     if(slot_codes[i] == SLOT_BOOTS)
@@ -142,6 +139,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd, sqlite3* db){
 
   json_object_array_add(itids, boots);
 
+  /*AMU*/
   json_object* amu = json_object_new_array_ext(pbd->targeted_slots[SLOT_AMU]);
   for(i=0; i<nbi; i++)
     if(slot_codes[i] == SLOT_AMU)

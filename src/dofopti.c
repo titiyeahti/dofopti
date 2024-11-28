@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
   print_linsol(lp, &pbd, stdout);
 
   if(argc == 3) {
-    json_object* root = sol_to_json(lp, &pbd, db);
+    json_object* root = sol_to_json(lp, &pbd);
     json_object_to_file(argv[2], root);
     json_object_put(root);
   }

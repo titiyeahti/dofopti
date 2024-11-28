@@ -42,7 +42,7 @@ typedef char short_word[NAME_LEN];
 /* Contains stats for a given item or specific set bonus */
 typedef struct {
   stat_vect stats;
-  int id_pano, slot_code;
+  int id, id_pano, slot_code;
   short_word name;
 } statline_s;
 
