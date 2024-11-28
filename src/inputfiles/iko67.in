@@ -1,0 +1,26 @@
+#LEVEL
+67
+#TARGETED_SLOTS
+amulet 1
+hat 0
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 0
+prysmaradite 0
+pet 0
+#BASE_STATS
+#OBJECTIVE
+cha 1.89
+pui 1.89
+do 6.
+doe 6.
+#CONSTRAINTS
+pa >= 9
+pm >= 4
+po >= 0
+#LOCK_ITEMS
+-dazzling belt

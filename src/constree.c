@@ -38,16 +38,22 @@ constree_s* constree_from_str(const char* str) {
   char sym[3];
   char* endptr;
   int val, stat, count, type, sign;
+  int braces_count;
 
-    ERR_MSG(str);
   if(str[0] == '('){
     count = 0;
-    while(str[count] != ')') count ++;
-    ERR_MSG(str+count+1);
+    braces_count = 1;
+    while(braces_count){
+      count ++;
+      if(str[count] == ')') braces_count --;
+      if(str[count] == '(') braces_count ++;
+    }
+
+
     d = constree_from_str(str+1);
     a = new_braces(&d);
     if(str[count+1] == '\0') return a;
-
+    ERR_MSG("dot");
     c = constree_from_str(str+count+2);
     if(str[count+1] == '&') type = AND;
     else if(str[count+1] == '|') type = OR;
@@ -62,7 +68,6 @@ constree_s* constree_from_str(const char* str) {
     val = (int) strtol(str+3, &endptr, 10);
     if(endptr==str+3) return NULL;
 
-    ERR_MSG(endptr+1);
     stat = symbol_to_stat(sym);
 
     if(str[2] == '<') sign = -1;
@@ -72,12 +77,17 @@ constree_s* constree_from_str(const char* str) {
 
     a = new_leaf(stat, sign, val); 
 
-    if(endptr[0] == '\0' || endptr[0] == ')') return a;
+    if(endptr[0] == '\0' || endptr[0] == ')') {
+      ERR_MSG(endptr);
+      return a;
+    }
 
     c = constree_from_str(endptr+1);
-    if(str[2] == '&') type = AND;
-    else if(str[2] == '|') type = OR;
+    ERR_MSG(endptr+1);
+    if(endptr[0] == '&') type = AND;
+    else if(endptr[0] == '|') type = OR;
     else exit(1);
+    ERR_MSG("dot");
     b = new_node(type, &a, &c);
 
     return b;
