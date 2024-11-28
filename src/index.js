@@ -1,9 +1,7 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import {TreatJson} from './dofusDbConverter.js'
-import {RunOptimisation, MakeInputTemplate, MakeInputHeader, RunOptimisationAsync} from "./optimizer.js";
-
-//RunOptimisation(TreatOptimisationSucceeded, TreatOptimisationFailed)
+import {MakeInputTemplate, MakeInputHeader, RunOptimisationAsync} from "./optimizer.js";
 
 function TreatOptimisationSucceeded(result){
     global.Success = true;
@@ -15,7 +13,7 @@ function TreatOptimisationFailed(err) {
     global.Error = "test error";
 }
 
-import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } from 'discord.js';
+import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} from 'discord.js';
 import {writeFileSync} from "fs";
 
 const client = new Client({
@@ -34,76 +32,126 @@ const commands = [
         .setDescription('Get a text template to modify!'),
 ];
 
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
-(async () => {
-    try {
-        console.log('Refreshing application commands...');
-        await rest.put(
-            Routes.applicationCommands(process.env.CLIENT_ID),
-            { body: commands },
-        );
-        console.log('Commands registered successfully!');
-    } catch (error) {
-        console.error('Error registering commands:', error);
-    }
-})();
+if (process.env.DISCORD_TOKEN != null){
+    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+
+    (async () => {
+        try {
+            console.log('Refreshing application commands...');
+            await rest.put(
+                Routes.applicationCommands(process.env.CLIENT_ID),
+                { body: commands },
+            );
+            console.log('Commands registered successfully!');
+        } catch (error) {
+            console.error('Error registering commands:', error);
+        }
+    })();
 
 // ------------- Bot Event Handlers -------------
-client.once('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
-});
+    client.once('ready', () => {
+        console.log(`Logged in as ${client.user.tag}!`);
+    });
 
 // Template text to send when the command is called
-const TEMPLATE_TEXT = MakeInputTemplate()
-const HEADER_TEXT = MakeInputHeader()
+    const TEMPLATE_TEXT = MakeInputTemplate()
+    const HEADER_TEXT = MakeInputHeader()
 
 
-client.on('interactionCreate', async (interaction) => {
-    if (!interaction.isCommand()) return;
+    client.on('interactionCreate', async (interaction) => {
+        if (interaction.isCommand() && interaction.commandName === 'tititemplate') {
 
-    if (interaction.commandName === 'tititemplate') {
-        await interaction.reply({
-            content: `Here's your template:\n\`\`\`${TEMPLATE_TEXT}\`\`\`\nReply with the modified version to see the magic!`,
-            ephemeral: false, // Visible to everyone in the channel.
-        });
-    }
-});
+            const modal = new ModalBuilder()
+                .setCustomId('tititemplate_modal')
+                .setTitle('Edit Template');
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return; // Ignore bot messages.
+            const textInput = new TextInputBuilder()
+                .setCustomId('template_text_input')
+                .setLabel('Template')
+                .setStyle(TextInputStyle.Paragraph)
+                .setPlaceholder('Edit the template text here...')
+                .setValue(TEMPLATE_TEXT);
 
-    // If the user replies with the modified template:
-    if (message.content && message.content.includes(HEADER_TEXT)) {
-        var lines = message.content.split('\n');
-        if (lines.length <= 1){
-            return;
+            const actionRow = new ActionRowBuilder().addComponents(textInput);
+            modal.addComponents(actionRow);
+
+            try {
+                await interaction.showModal(modal);
+            } catch (error) {
+                console.error('Error showing modal:', error);
+                return
+            }
         }
-        lines.splice(0,1);
-        var newtext = lines.join('\n');
-        
-        /*
-        try {
-            const content = 'Some content!';
-            await writeFile('./inputfiles/discord.in', content);
-        } catch (err) {writeFileSync
-            await message.reply('```' + err + '```');
-            return;
-        }*/
-        
-        await writeFileSync('./inputfiles/discord.in', newtext);
-        
+
+        if (interaction.isModalSubmit() && interaction.customId === 'tititemplate_modal') {
+            console.log('Modal submitted!');
+
+            const editedTemplate = interaction.fields.getTextInputValue('template_text_input');
+            console.log('Edited template:', editedTemplate);
+
+            try {
+                await interaction.deferReply(); // Acknowledge interaction immediately
+                await interaction.followUp({
+                    content: `Input received :\n\`\`\`${editedTemplate}\`\`\``,
+                    ephemeral: false,
+                });
+            } catch (error) {
+                console.error('Error while handling modal submission:', error);
+                return
+            }
+        }
+
+        await writeFileSync('./inputfiles/discord.in', editedTemplate);
+
         await RunOptimisationAsync();
-        
+
         await TreatJson(async (link) => {
-            await message.reply(link)
-        }, 
+                await interaction.followUp(link)
+            },
             async (err) => {
-                await message.reply(err)
+                console.log(err)
             });
-        
-    }
-});
+
+    });
+
+    client.on('messageCreate', async (message) => {
+        if (message.author.bot) return; // Ignore bot messages.
+
+        return;
+        // If the user replies with the modified template:
+        if (message.content && message.content.includes(HEADER_TEXT)) {
+            var lines = message.content.split('\n');
+            if (lines.length <= 1){
+                return;
+            }
+            lines.splice(0,1);
+            var newtext = lines.join('\n');
+
+            /*
+            try {
+                const content = 'Some content!';
+                await writeFile('./inputfiles/discord.in', content);
+            } catch (err) {writeFileSync
+                await message.reply('```' + err + '```');
+                return;
+            }*/
+
+            await writeFileSync('./inputfiles/discord.in', newtext);
+
+            await RunOptimisationAsync();
+
+            await TreatJson(async (link) => {
+                    await message.reply(link)
+                },
+                async (err) => {
+                    await message.reply(err)
+                });
+
+        }
+    });
 
 // Login the bot
-client.login(process.env.DISCORD_TOKEN);
+    client.login(process.env.DISCORD_TOKEN);
+}
+

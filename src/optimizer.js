@@ -15,23 +15,11 @@ export async function RunOptimisationAsync() {
     }
 }
 
-export function RunOptimisation(SuccessCallback, ErrorCallback){
-    exec("./dofopti.out inputfiles/discord.in", (err, stdout, stderr) => {
-        if (err) {
-            ErrorCallback(stderr)
-            return;
-        }
-        SuccessCallback(stdout)
-    });
-}
-
-
 export function MakeInputHeader(){
     return "%%%TITI PLEASE!%%%\n";
 }
 export function MakeInputTemplate(){
-    const input = MakeInputHeader() +
-        "#LEVEL\n" +
+    const input = "#LEVEL\n" +
         "200\n" +
         "#TARGETED_SLOTS\n" +
         "amulet 1\n" +

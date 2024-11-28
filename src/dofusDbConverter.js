@@ -33,13 +33,10 @@ export async function TreatJson(Success, Fail){
         }
         const jdata = JSON.parse(data)
         const byteArray = SaveStuff(jdata);
-        console.log(byteArray)
         var c = ""
         for (var o = 0; o < byteArray.length; o += 1){
             c += String.fromCharCode(byteArray[o]);
         }
-        console.log(c)
-        console.log(btoa(c));
         await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c));
     });
 }
