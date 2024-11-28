@@ -38,6 +38,8 @@ int main(int argc, char* argv[]){
   set_obj_coeff(lp, obj_coeff);
   const_multi_simple_constraints(lp, bnds, sign);
 
+  lock_items_from_file(argv[1], lp);
+
   solve_linprob(lp);
   print_linsol(lp, &pbd, stdout);
 

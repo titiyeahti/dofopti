@@ -47,7 +47,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   json_object_array_add(points, json_object_new_int(vals[0]));
 
 
-  json_object_object_add(ret, "AddtionalPoints", points);
+  json_object_object_add(ret, "AdditionalPoints", points);
 
   json_object_object_add(ret, "Level", json_object_new_int(pbd->level));
   /*boolean stuff*/
