@@ -16,6 +16,8 @@ function TreatOptimisationFailed(err) {
 import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder} from 'discord.js';
 import {writeFileSync} from "fs";
 
+var editedTemplate = ""
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -87,7 +89,7 @@ if (process.env.DISCORD_TOKEN != null){
         if (interaction.isModalSubmit() && interaction.customId === 'tititemplate_modal') {
             console.log('Modal submitted!');
 
-            const editedTemplate = interaction.fields.getTextInputValue('template_text_input');
+            editedTemplate = interaction.fields.getTextInputValue('template_text_input');
             console.log('Edited template:', editedTemplate);
 
             try {
@@ -100,57 +102,19 @@ if (process.env.DISCORD_TOKEN != null){
                 console.error('Error while handling modal submission:', error);
                 return
             }
-        }
-
-        await writeFileSync('./inputfiles/discord.in', editedTemplate);
-
-        await RunOptimisationAsync();
-
-        await TreatJson(async (link) => {
-                await interaction.followUp(link)
-            },
-            async (err) => {
-                console.log(err)
-            });
-
-    });
-
-    client.on('messageCreate', async (message) => {
-        if (message.author.bot) return; // Ignore bot messages.
-
-        return;
-        // If the user replies with the modified template:
-        if (message.content && message.content.includes(HEADER_TEXT)) {
-            var lines = message.content.split('\n');
-            if (lines.length <= 1){
-                return;
-            }
-            lines.splice(0,1);
-            var newtext = lines.join('\n');
-
-            /*
-            try {
-                const content = 'Some content!';
-                await writeFile('./inputfiles/discord.in', content);
-            } catch (err) {writeFileSync
-                await message.reply('```' + err + '```');
-                return;
-            }*/
-
-            await writeFileSync('./inputfiles/discord.in', newtext);
+            await writeFileSync('./inputfiles/discord.in', editedTemplate);
 
             await RunOptimisationAsync();
 
             await TreatJson(async (link) => {
-                    await message.reply(link)
+                    await interaction.followUp(link)
                 },
                 async (err) => {
-                    await message.reply(err)
+                    console.log(err)
                 });
-
         }
-    });
 
+    });
 // Login the bot
     client.login(process.env.DISCORD_TOKEN);
 }
