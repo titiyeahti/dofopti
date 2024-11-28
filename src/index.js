@@ -93,9 +93,14 @@ client.on('messageCreate', async (message) => {
         
         await writeFileSync('./inputfiles/discord.in', newtext);
         
-        var result = await RunOptimisationAsync();
-
-        await message.reply(result)
+        await RunOptimisationAsync();
+        
+        await TreatJson(async (link) => {
+            await message.reply(link)
+        }, 
+            async (err) => {
+                await message.reply(err)
+            });
         
     }
 });

@@ -5,7 +5,7 @@ const execPromise = util.promisify(exec);
 
 export async function RunOptimisationAsync() {
     try {
-        const { stdout, stderr } = await execPromise("./dofopti.out inputfiles/discord.in");
+        const { stdout, stderr } = await execPromise("./dofopti.out inputfiles/discord.in discord.json");
         if (stderr) {
             throw new Error(stderr); // Handle errors from stderr
         }

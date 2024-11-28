@@ -25,10 +25,11 @@ function SaveStuff(e) {
     return encode(t)
 }
 
-export function TreatJson(){
-    readFile('json3.json', 'utf8', function(err, data) {
+export async function TreatJson(Success, Fail){
+    await readFile('discord.json', 'utf8', async function(err, data) {
         if (err) {
-            return console.log(err);
+            await Fail(err)
+            return;
         }
         const jdata = JSON.parse(data)
         const byteArray = SaveStuff(jdata);
@@ -39,6 +40,6 @@ export function TreatJson(){
         }
         console.log(c)
         console.log(btoa(c));
-        return btoa(c);
+        await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c));
     });
 }
