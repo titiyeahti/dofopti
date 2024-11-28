@@ -1,13 +1,27 @@
 import {exec} from "child_process";
+import util from 'util';
 
-export async function RunOptimisation(SuccessCallback, ErrorCallback){
-    exec("./dofopti.out inputfiles/discord.in", async (err, stdout, stderr) => {
+const execPromise = util.promisify(exec);
+
+export async function RunOptimisationAsync() {
+    try {
+        const { stdout, stderr } = await execPromise("./dofopti.out inputfiles/discord.in");
+        if (stderr) {
+            throw new Error(stderr); // Handle errors from stderr
+        }
+        return stdout; // Return stdout as the success result
+    } catch (error) {
+        throw error; // Throw an error to be handled by the caller
+    }
+}
+
+export function RunOptimisation(SuccessCallback, ErrorCallback){
+    exec("./dofopti.out inputfiles/discord.in", (err, stdout, stderr) => {
         if (err) {
-            await ErrorCallback(err)
+            ErrorCallback(stderr)
             return;
         }
-
-        await SuccessCallback(stdout)
+        SuccessCallback(stdout)
     });
 }
 

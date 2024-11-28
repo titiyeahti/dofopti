@@ -1,18 +1,18 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import {TreatJson} from './dofusDbConverter.js'
-import {RunOptimisation, MakeInputTemplate, MakeInputHeader} from "./optimizer.js";
+import {RunOptimisation, MakeInputTemplate, MakeInputHeader, RunOptimisationAsync} from "./optimizer.js";
 
 //RunOptimisation(TreatOptimisationSucceeded, TreatOptimisationFailed)
 
 function TreatOptimisationSucceeded(result){
-    global.Busy = false;
-    global.Channel.send(result)
+    global.Success = true;
+    global.Result = "test succeed";
 }
 
-function TreatOptimisationFailed(err){
-    global.Busy = false;
-    global.Channel.send(err)
+function TreatOptimisationFailed(err) {
+    global.Success = false;
+    global.Error = "test error";
 }
 
 import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } from 'discord.js';
@@ -58,6 +58,7 @@ client.once('ready', () => {
 const TEMPLATE_TEXT = MakeInputTemplate()
 const HEADER_TEXT = MakeInputHeader()
 
+
 client.on('interactionCreate', async (interaction) => {
     if (!interaction.isCommand()) return;
 
@@ -91,12 +92,10 @@ client.on('messageCreate', async (message) => {
         }*/
         
         await writeFileSync('./inputfiles/discord.in', newtext);
-        await RunOptimisation(async () => {
-            await message.reply('🎉');
-            }, 
-            async () => {
-            await message.reply('failed optimization :( !')
-            })
+        
+        var result = await RunOptimisationAsync();
+
+        await message.reply(result)
         
     }
 });
