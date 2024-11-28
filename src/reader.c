@@ -172,11 +172,11 @@ int lock_items_from_file(const char* pathname, linprob_s* lp){
 
     if(sect != SECT_ITEMS) continue;
     
-    if(buffer[0] = '-'){
+    if(buffer[0] == '-'){
       buffer[strlen(buffer)-1] = '\0';
       const_lock_out_item(lp, (const char*) buffer);
     }
-    if(buffer[0] = '+'){
+    if(buffer[0] == '+'){
       buffer[strlen(buffer)-1] = '\0';
       const_lock_in_item(lp, (const char*) buffer);
     }

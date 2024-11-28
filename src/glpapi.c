@@ -51,7 +51,6 @@ int select_count_items(sqlite3* db, int level){
   int nb;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db, 
-      /*    "SELECT count(distinct id) FROM items;", -1, &stmt, NULL);*/
       "SELECT count(distinct id) FROM items where level <= ?;", -1, &stmt, NULL);
   ret = sqlite3_bind_int(stmt, 1, level);
 
@@ -602,15 +601,12 @@ linprob_s* new_linprob(pbdata_s* pbd){
       res->matrix[(i*NB_COLS_PER_ELEM+j+items_bonuses+1)*res->m + 
         stat_rep[i]] = 1.;
 
-  ERR_MSG("ekip");
   res->matrix[(NB_COLS_PER_ELEM*NB_ELEMS+items_bonuses+1)*res->m +
     VITA] = 1.;
 
-  ERR_MSG("ekip");
   res->matrix[(NB_COLS_PER_ELEM*NB_ELEMS+items_bonuses+1+1)*res->m +
     SA] = 1.;
 
-  ERR_MSG("ekip");
   glp_set_prob_name(res->pb, "pb_name");
   glp_set_obj_name(res->pb, "obj_func");
   glp_set_obj_dir(res->pb, GLP_MAX);
@@ -717,6 +713,7 @@ int solve_linprob(linprob_s* lp){
   return 0;
 }
 
+/*Rewamp the function to write into a FILE* */
 void print_linsol(linprob_s* lp, pbdata_s* pbd){
   int i;
   double vec[lp->n];
@@ -736,10 +733,11 @@ void print_linsol(linprob_s* lp, pbdata_s* pbd){
         printf("%s\n", glp_get_col_name(lp->pb, i));
     }
   }
+  printf("\n");
 
   basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
   for(i = 0; i < STATS_COUNT; i++)
-    printf("%s [%d] \n", stats_names[i], 
+    printf("%s [%d], ", stats_names[i], 
         pbd->base_stats[i]+(int)stats[i]);
 
 }
