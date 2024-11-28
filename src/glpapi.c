@@ -399,16 +399,7 @@ int mat_times_vec(size_t n, size_t m, double matrix[],
   return 0;
 }
 
-int stat_to_basis(size_t n, size_t m, double matrix[],
-    double input[], double output[]){
-  /*intermediate value*/
-  double oo[n];
-  mat_times_vec(m, m, matrix_pptac, input, oo);
-  mat_times_vec(n, m, matrix, oo, output);
-  return 0;
-}
-
-int basis_to_stat(size_t n, size_t m, double matrix[],
+int vec_times_mat(size_t n, size_t m, double matrix[],
     double input[], double output[]){
   int i, j;
 
@@ -423,6 +414,22 @@ int basis_to_stat(size_t n, size_t m, double matrix[],
   }
 
   return 0;
+}
+
+int stat_to_basis(size_t n, size_t m, double matrix[],
+    double input[], double output[]){
+  /*intermediate value*/
+  double oo[n];
+  mat_times_vec(m, m, matrix_pptac, input, oo);
+  mat_times_vec(n, m, matrix, oo, output);
+  return 0;
+}
+
+int basis_to_stat(size_t n, size_t m, double matrix[],
+    double input[], double output[]){
+  double oo[m];
+  vec_times_mat(n, m, matrix, input, oo);
+  vec_times_mat(m, m, matrix_pptac, oo, output);
 }
 
 int linprob_items_variables(linprob_s* res, pbdata_s* pbd){
@@ -714,7 +721,7 @@ int solve_linprob(linprob_s* lp){
 }
 
 /*Rewamp the function to write into a FILE* */
-void print_linsol(linprob_s* lp, pbdata_s* pbd){
+void print_linsol(linprob_s* lp, pbdata_s* pbd, FILE* stream){
   int i;
   double vec[lp->n];
   double stats[STATS_COUNT];
@@ -725,21 +732,22 @@ void print_linsol(linprob_s* lp, pbdata_s* pbd){
     vec[i] = val;
     if(val>0.5){
       if (i < pbd->nb_items+1)
-        printf("%s : %s [%d]\n", slots_names[pbd->items_data[i].slot_code], 
+        fprintf(stream, "%s : %s [%d]\n", slots_names[pbd->items_data[i].slot_code], 
           glp_get_col_name(lp->pb, i), (int) val);
       else if (i >= pbd->nb_items + pbd->nb_bonuses + 1)
-        printf("%s [%d]\n", glp_get_col_name(lp->pb, i), (int) val);
+        fprintf(stream, "%s [%d]\n", glp_get_col_name(lp->pb, i), (int) val);
       else 
-        printf("%s\n", glp_get_col_name(lp->pb, i));
+        fprintf(stream, "%s\n", glp_get_col_name(lp->pb, i));
     }
   }
-  printf("\n");
+  fprintf(stream, "\n");
 
   basis_to_stat(lp->n, lp->m, lp->matrix, vec, stats);
-  for(i = 0; i < STATS_COUNT; i++)
-    printf("%s [%d], ", stats_names[i], 
-        pbd->base_stats[i]+(int)stats[i]);
-
+  for(i = 0; i < STATS_COUNT; i++){
+    fprintf(stream, "%s [%d]%c", stats_names[i], 
+        pbd->base_stats[i]+(int)stats[i], (i+1) % 5 ? '\t' : '\n');
+  }
+  fprintf(stream, "\n");
 }
 
 int const_lock_in_item(linprob_s* lp, const char* name){

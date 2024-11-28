@@ -126,7 +126,7 @@ int set_obj_coeff(linprob_s* lp, double coeffs[]);
 
 void free_linprob(linprob_s* lp);
 
-void print_linsol(linprob_s* lp, pbdata_s* pbd);
+void print_linsol(linprob_s* lp, pbdata_s* pbd, FILE* stream);
 
 int const_lock_out_item(linprob_s* lp, const char* name);
 

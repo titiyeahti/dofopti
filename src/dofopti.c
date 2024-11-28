@@ -5,7 +5,7 @@
 #define DBFILE "skrapipi/pydb.db"
 
 int main(int argc, char* argv[]){
-  if(argc != 2) exit(1);
+  if(argc < 2) exit(1);
 
   sqlite3* db;
   pbdata_s pbd;
@@ -39,10 +39,13 @@ int main(int argc, char* argv[]){
   const_multi_simple_constraints(lp, bnds, sign);
 
   solve_linprob(lp);
-  /*print_linsol(lp, &pbd);*/
-  json_object* root = sol_to_json(lp, &pbd, db);
-  json_object_to_file("outputfiles/testjson.json", root);
-  json_object_put(root);
+  print_linsol(lp, &pbd, stdout);
+
+  if(argc == 3) {
+    json_object* root = sol_to_json(lp, &pbd, db);
+    json_object_to_file(argv[2], root);
+    json_object_put(root);
+  }
 
   ret = sqlite3_close(db);
   free_pbdata(&pbd);
