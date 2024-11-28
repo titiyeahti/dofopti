@@ -88,22 +88,21 @@ constree_s* constree_from_str(const char* str) {
   }
 }
 
-constree_s * eval(constree_s* ct){
-  if(!ct) return NULL;
+int eval(constree_s* ct){
+  if(!ct) return 1;
   switch (ct->t){
     case LEAF :
       if (ct->leaf.stat < 0)
-        return NULL;
+        return 1;
       else 
-        return new_leaf(ct->leaf.stat, ct->leaf.sign, ct->leaf.val);
+        return 0;
     case BRACES :
-      return new_braces(eval(ct->braces));
+      return eval(ct->braces);
     case OR :
     case AND :
-      return new_node(ct->t, ct->node.lm, ct->node.rm);
+      return eval(ct->node.lm) || eval(ct->node.lm);
     default :
-      return NULL;
-
+      return 1;
   }
 }
 
@@ -121,30 +120,69 @@ int symbol_to_stat(char symbol[3]){
   return -1;
 }
 
+constree_s* cutting(constree_s* ct){
+  constree_s *a, *b;
+  if(!ct) return NULL;
+  if(eval(ct)) return NULL;
+
+  switch (ct->t) {
+    case LEAF :
+      return new_leaf(ct->leaf.stat, ct->leaf.sign, ct->leaf.val);
+      
+    case BRACES :
+      a = cutting(ct->braces);
+      return new_braces(&a);
+
+    case OR :
+    case AND :
+      if(eval(ct->node.lm))
+        return cutting(ct->node.rm);
+
+      if(eval(ct->node.rm)) 
+        return cutting(ct->node.lm);
+
+      a = cutting(ct->node.lm); b = cutting(ct->node.rm);
+      return new_node(ct->t, &a, &b);
+
+    default :
+      break;
+  }
+}
+
+
 
 void print_constree_aux(constree_s* ct){
   if(!ct) return;
+  if(eval(ct)) return;
+
   switch (ct->t) {
     case LEAF :
-        printf("%d %d %d", ct->leaf.stat, ct->leaf.sign,
-          ct->leaf.val);
+      char csig;
+      csig = ct->leaf.sign == -1 ? '<' : 
+        (ct->leaf.sign == 1 ? '>' : '=');
+      printf("%s %c %d", stats_names[ct->leaf.stat], csig, ct->leaf.val);
       break;
       
     case BRACES :
       printf("(");
-      if(ct->braces) print_constree_aux(ct->braces);
+      print_constree_aux(ct->braces);
       printf(")");
       break;
 
     case OR :
-      if(ct->node.lm) print_constree_aux(ct->node.lm);
-      printf(" | ");
-      if(ct->node.rm) print_constree_aux(ct->node.rm);
-      break;
     case AND :
-      if(ct->node.lm) print_constree_aux(ct->node.lm);
-      printf(" & ");
-      if(ct->node.rm) print_constree_aux(ct->node.rm);
+      if(eval(ct->node.lm)) {
+        print_constree_aux(ct->node.rm);
+        break;
+      }
+      if(eval(ct->node.rm)) {
+        print_constree_aux(ct->node.lm);
+        break;
+      }
+
+      print_constree_aux(ct->node.lm);
+      printf(ct->t == OR ? " | " : " & ");
+      print_constree_aux(ct->node.rm);
       break;
 
     default :

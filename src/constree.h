@@ -33,7 +33,9 @@ constree_s* constree_from_str(const char* str);
 
 int symbol_to_stat(char symbol[3]);
 
-constree_s * eval(constree_s* ct);
+int eval(constree_s* ct);
+
+constree_s* cutting(constree_s* ct);
 
 void print_constree(constree_s* ct);
 

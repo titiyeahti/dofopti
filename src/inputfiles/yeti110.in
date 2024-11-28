@@ -1,0 +1,25 @@
+#LEVEL
+110
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 0
+prysmaradite 1
+pet 0
+#BASE_STATS
+#OBJECTIVE
+agi .735
+pui .735
+do 3.
+doe 3.
+#CONSTRAINTS
+pa >=  11
+pm >=  5
+tac >= 100
+#LOCK_ITEMS
