@@ -1,56 +1,22 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { Client, Events, GatewayIntentBits, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, InteractionType } from 'discord.js';
-import { exec } from 'child_process'
-import { encode, decode } from "@msgpack/msgpack";
-import {readFile} from 'fs';
+import {TreatJson} from './dofusDbConverter.js'
+import {RunOptimisation, MakeInputTemplate, MakeInputHeader} from "./optimizer.js";
 
-function SaveStuff(e) {
-    var t = {};
-    t[0] = {};
-    for (var a = 0; a < e.BaseCaracs.length; a += 1)
-        0 != e.BaseCaracs[a] && (t[0][a] = e.BaseCaracs[a]);
-    t[1] = e.AdditionalPoints,
-        t[2] = e.Level,
-        t[3] = 0,
-        t[3] |= e.Poney << 5,
-        t[3] |= e.PuissanceCarac << 4,
-        t[3] |= e.AllowDamage << 3,
-        t[3] |= e.ExoPA << 2,
-        t[3] |= e.ExoPM << 1,
-        t[3] |= e.ExoPO << 0,
-        t[4] = {};
-    for (var a = 0; a < e.NumPicks.length; a += 1)
-        1 != e.NumPicks[a] && (t[4][a] = e.NumPicks[a]);
-    t[5] = [];
-    for (var a = 0; a < e.ItemIds.length; a += 1)
-        for (var n = 0; n < e.ItemIds[a].length; n += 1)
-            t[5].push(e.ItemIds[a][n]);
-    return encode(t)
+//RunOptimisation(TreatOptimisationSucceeded, TreatOptimisationFailed)
+
+function TreatOptimisationSucceeded(result){
+    global.Busy = false;
+    global.Channel.send(result)
 }
 
-function TreatJson(){
-    readFile('json3.json', 'utf8', function(err, data) {
-        if (err) {
-            return console.log(err);
-        }
-        const jdata = JSON.parse(data)
-        const byteArray = SaveStuff(jdata);
-        console.log(byteArray)
-        var c = ""
-        for (var o = 0; o < byteArray.length; o += 1){
-            c += String.fromCharCode(byteArray[o]);
-        }
-        console.log(c)
-        console.log(btoa(c));
-        return btoa(c);
-    });
-    
+function TreatOptimisationFailed(err){
+    global.Busy = false;
+    global.Channel.send(err)
 }
 
-TreatJson();
-/*
-
+import { Client, GatewayIntentBits, Partials, SlashCommandBuilder, REST, Routes } from 'discord.js';
+import {writeFileSync} from "fs";
 
 const client = new Client({
     intents: [
@@ -58,82 +24,82 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ],
+    partials: [Partials.Channel],
 });
 
+// ------------- Slash Command Registration -------------
+const commands = [
+    new SlashCommandBuilder()
+        .setName('tititemplate')
+        .setDescription('Get a text template to modify!'),
+];
 
-client.login(process.env.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
-console.log("login success")
+(async () => {
+    try {
+        console.log('Refreshing application commands...');
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            { body: commands },
+        );
+        console.log('Commands registered successfully!');
+    } catch (error) {
+        console.error('Error registering commands:', error);
+    }
+})();
 
-client.on('messageCreate', (message) => {
-    
-    // Ignore message when busy
-    if (global.Busy) return;
-    
-    // Ignore messages from the bot itself
-    if (message.author.bot) return;
-    
-    
-    global.Busy = true;
-    global.Channel = message.channel;
-    //RunOptimisation()
+// ------------- Bot Event Handlers -------------
+client.once('ready', () => {
+    console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on(Events.InteractionCreate, async interaction => {
-    console.log(interaction)
-    if (!interaction.isChatInputCommand()) return;
+// Template text to send when the command is called
+const TEMPLATE_TEXT = MakeInputTemplate()
+const HEADER_TEXT = MakeInputHeader()
 
-    if (interaction.commandName === 'ping') {
-        const modal = new ModalBuilder()
-            .setCustomId('myModal')
-            .setTitle('My Modal');
+client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isCommand()) return;
 
-        // Add components to modal
-
-        // Create the text input components
-        const favoriteColorInput = new TextInputBuilder()
-            .setCustomId('favoriteColorInput')
-            // The label is the prompt the user sees for this input
-            .setLabel("What's your favorite color?")
-            // Short means only a single line of text
-            .setStyle(TextInputStyle.Short);
-
-        const hobbiesInput = new TextInputBuilder()
-            .setCustomId('hobbiesInput')
-            .setLabel("What's some of your favorite hobbies?")
-            // Paragraph means multiple lines of text.
-            .setStyle(TextInputStyle.Paragraph);
-
-        // An action row only holds one text input,
-        // so you need one action row per text input.
-        const firstActionRow = new ActionRowBuilder().addComponents(favoriteColorInput);
-        const secondActionRow = new ActionRowBuilder().addComponents(hobbiesInput);
-
-        // Add inputs to the modal
-        modal.addComponents(firstActionRow, secondActionRow);
-
-        // Show the modal to the user
-        await interaction.showModal(modal);
+    if (interaction.commandName === 'tititemplate') {
+        await interaction.reply({
+            content: `Here's your template:\n\`\`\`${TEMPLATE_TEXT}\`\`\`\nReply with the modified version to see the magic!`,
+            ephemeral: false, // Visible to everyone in the channel.
+        });
     }
 });
 
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return; // Ignore bot messages.
 
-function RunOptimisation(){
-    exec("./dofopti.out inputfiles/ramtest.in", (err, stdout, stderr)=>{
-        if (err){
-            TreatEndOptimisation("", err)
+    // If the user replies with the modified template:
+    if (message.content && message.content.includes(HEADER_TEXT)) {
+        var lines = message.content.split('\n');
+        if (lines.length <= 1){
+            return;
         }
-
-        TreatEndOptimisation(stdout, "")
-    });
-}
-
-function TreatEndOptimisation(optimisation, err){
-    global.Busy = false;
-    if (err.length > 0){
-        global.Channel.send("Something went wrong");
-        return;
+        lines.splice(0,1);
+        var newtext = lines.join('\n');
+        
+        /*
+        try {
+            const content = 'Some content!';
+            await writeFile('./inputfiles/discord.in', content);
+        } catch (err) {writeFileSync
+            await message.reply('```' + err + '```');
+            return;
+        }*/
+        
+        await writeFileSync('./inputfiles/discord.in', newtext);
+        await RunOptimisation(async () => {
+            await message.reply('🎉');
+            }, 
+            async () => {
+            await message.reply('failed optimization :( !')
+            })
+        
     }
-    
-    global.Channel.send(optimisation.substring(0, 1900));
-}*/
+});
+
+// Login the bot
+client.login(process.env.DISCORD_TOKEN);
