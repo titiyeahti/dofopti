@@ -24,8 +24,6 @@ void print_statline(statline_s* sl);
 void print_pids(pids_s* pi);
 
 void print_pbdata(pbdata_s* pbd);
-/*allocate ids to the right size*/
-int new_pids(int id_pano, int size, int maxbonuses, pids_s* res);
 
 int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
     int targeted_slots[SLOT_COUNT], int level);
