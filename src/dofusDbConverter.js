@@ -7,7 +7,20 @@ function SaveStuff(e) {
     for (var a = 0; a < e.BaseCaracs.length; a += 1)
         0 != e.BaseCaracs[a] && (t[0][a] = e.BaseCaracs[a]);
     
-    t[0][0] = '' + (parseInt(t[0][0]) - 100)
+    t[0][0] = '' + (parseInt(t[0][0]) + 100)
+    t[0][12] = '0'
+    t[0][13] = '0'
+    t[0][14] = '0'
+    t[0][15] = '0'
+    t[0][16] = '0'
+    t[0][17] = '0'
+    t[0][18] = '0'
+    t[0][19] = '0'
+    t[0][20] = '0'
+    t[0][21] = '0'
+    t[0][22] = '0'
+    t[0][23] = '1000'
+    
     t[1] = e.AdditionalPoints,
         t[2] = e.Level,
         t[3] = 0,
