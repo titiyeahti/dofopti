@@ -64,6 +64,7 @@ int const_linear_lower(linprob_s* lp, double coeffs[],
 int const_linear_fix(linprob_s* lp, double coeffs[],
     double bound, const char* name);
 
+//rename this function to const_add_all_simple_constraints
 int const_multi_simple_constraints(linprob_s* lp, double bounds[], int sign[]);
 
 int set_obj_coeff(linprob_s* lp, double coeffs[]);
