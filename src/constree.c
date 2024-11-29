@@ -178,7 +178,7 @@ void free_pbd_constraints(pbdata_s* pbd){
   int i;
 
   for(i=1; i<pbd->nb_items+1; i++)
-    free_constree(&pbd->items_consts[i]);
+    free_constree(&(pbd->items_consts[i]));
   free(pbd->items_consts);
 }
 
@@ -318,6 +318,7 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
       sprintf(name, "y-%d-%d[+1]", item_id, 2*nb_ors);
       glp_set_row_name(lp->pb, rownum, name);
       glp_set_mat_row(lp->pb, rownum, 2, cur_ids, cur_coeffs);
+      glp_set_row_bnds(lp->pb, rownum, GLP_LO, 1., 1.);
 
       yids[nb_ors] = col_id;
       add_constraint_aux(item_id, yids, nb_ors+1, lp, ct->node.lm);
