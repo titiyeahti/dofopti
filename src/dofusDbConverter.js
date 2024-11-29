@@ -6,6 +6,8 @@ function SaveStuff(e) {
     t[0] = {};
     for (var a = 0; a < e.BaseCaracs.length; a += 1)
         0 != e.BaseCaracs[a] && (t[0][a] = e.BaseCaracs[a]);
+    
+    t[0][0] = str(parseInt(t[0][0]) - 100)
     t[1] = e.AdditionalPoints,
         t[2] = e.Level,
         t[3] = 0,
