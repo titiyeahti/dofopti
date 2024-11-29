@@ -120,7 +120,14 @@ if (process.env.DISCORD_TOKEN != null){
             }
             await writeFileSync('./inputfiles/discord.in', editedTemplate);
 
-            await RunOptimisationAsync(async () => await OptiSuccessful(interaction), async(err) => await interaction.followUp(err));
+            await RunOptimisationAsync(async () => await OptiSuccessful(interaction), async(err) => {
+                if (err && err.length > 0){
+                    await interaction.followUp("💥💥 Cataclysmic error ! 💥💥" + err)
+                }
+                else{
+                    await interaction.followUp("💥💥 Cataclysmic error ! 💥💥")
+                }
+            });
         }
     });
     
