@@ -26,7 +26,7 @@ int main(int argc, char* argv[]){
     sign[i] = 0;
     obj_coeff[i] = 0.;
     bnds[i] = 0.;
-    bs[i] = 0.;
+    bs[i] = 0;
   }
 
   init();
