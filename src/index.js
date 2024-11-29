@@ -120,41 +120,37 @@ if (process.env.DISCORD_TOKEN != null){
             }
             await writeFileSync('./inputfiles/discord.in', editedTemplate);
 
-            await RunOptimisationAsync();
-
-            await TreatJson(async (link, result) => {
-                    const random = Math.floor(Math.random() * 6);
-                    var toPrint;
-
-                    if (random < 1){
-                        toPrint = "C’est du lourd, tu crames les mobs ! 🔥💥"
-                    }
-                    else if (random < 2){
-                        toPrint = "Des dégâts qui font pleurer les boss ! 😭👊"
-                    }
-                    else if (random < 2){
-                        toPrint = "T’as sorti l’artillerie lourde, wow ! 🛡️💣"
-                    }
-                    else if (random < 3){
-                        toPrint = "Tu vas rouler sur eux comme un bulldozer ! 🚜💥"
-                    }
-                    else if (random < 4){
-                        toPrint = "C’est plus du DPS, c’est un génocide ! ☠️🔥"
-                    }
-                    else{
-                        toPrint = "Un DPS de légende, on devrait écrire une saga là-dessus ! 📖⚡"
-                    }
-
-                    toPrint = '**[' + result + '💥]** ' + toPrint;
-                    await interaction.followUp(toPrint)
-                    await interaction.followUp(link)
-                },
-                async (err) => {
-                    console.log(err)
-                });
+            await RunOptimisationAsync(async () => await OptiSuccessful(interaction), async(err) => await interaction.followUp(err));
         }
-
     });
+    
+    async function OptiSuccessful(interaction) {
+        await TreatJson(async (link, result) => {
+                const random = Math.floor(Math.random() * 6);
+                var toPrint;
+
+                if (random < 1) {
+                    toPrint = "C’est du lourd, tu crames les mobs ! 🔥💥"
+                } else if (random < 2) {
+                    toPrint = "Des dégâts qui font pleurer les boss ! 😭👊"
+                } else if (random < 2) {
+                    toPrint = "T’as sorti l’artillerie lourde, wow ! 🛡️💣"
+                } else if (random < 3) {
+                    toPrint = "Tu vas rouler sur eux comme un bulldozer ! 🚜💥"
+                } else if (random < 4) {
+                    toPrint = "C’est plus du DPS, c’est un génocide ! ☠️🔥"
+                } else {
+                    toPrint = "Un DPS de légende, on devrait écrire une saga là-dessus ! 📖⚡"
+                }
+
+                toPrint = '**[' + result + '💥]** ' + toPrint;
+                await interaction.followUp(toPrint)
+                await interaction.followUp(link)
+            },
+            async (err) => {
+                console.log(err)
+            });
+    }
     
     const CachedRequests = new CachedRequestArray();
     client.login(process.env.DISCORD_TOKEN);

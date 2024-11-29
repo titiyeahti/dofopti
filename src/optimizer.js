@@ -3,15 +3,15 @@ import util from 'util';
 
 const execPromise = util.promisify(exec);
 
-export async function RunOptimisationAsync() {
+export async function RunOptimisationAsync(successAsync, failAsync) {
     try {
         const { stdout, stderr } = await execPromise("./dofopti.out inputfiles/discord.in discord.json");
         if (stderr) {
-            throw new Error(stderr); // Handle errors from stderr
+            await failAsync(stderr); // Handle errors from stderr
         }
-        return stdout; // Return stdout as the success result
+        await successAsync(); // Return stdout as the success result
     } catch (error) {
-        throw error; // Throw an error to be handled by the caller
+        await failAsync(error); // Throw an error to be handled by the caller
     }
 }
 
