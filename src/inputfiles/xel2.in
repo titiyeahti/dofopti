@@ -1,0 +1,41 @@
+#LEVEL
+200
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 100
+int 100
+agi 100
+vit 100
+sa 100
+pa 1
+#OBJECTIVE
+doe 2.
+doa 3.
+dof 5.
+dot 1.
+do 11.
+doc 9.45
+cha .39
+agi .4295
+int .889
+str .1585
+pui 1.867
+#CONSTRAINTS
+pa >= 12
+cri >= 80
+#LOCK_ITEMS
++cloudy dofus
++vulbis dofus
++turquoise dofus

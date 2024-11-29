@@ -1,0 +1,31 @@
+#LEVEL
+200
+#TARGETED_SLOTS
+amulet 1
+hat 0
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 100
+int 100
+agi 100
+pa 1
+#OBJECTIVE
+doe 8.
+doa 2.
+cha 1.72
+agi 0.24
+pui 1.96
+#CONSTRAINTS
+pa >= 12
+pm >= 5
+#LOCK_ITEMS
++vulbis dofus
