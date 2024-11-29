@@ -60,6 +60,7 @@ int main(int argc, char* argv[]){
   free_pbdata(&pbd);
 
   free_linprob(lp);
-
+  
+  glp_free_env();
   return 0;
 }
