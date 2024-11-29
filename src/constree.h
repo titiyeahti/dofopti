@@ -4,24 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "glpapi.h"
+#include "data_types.h"
 
-typedef struct constree{
-  enum Type {LEAF, BRACES, OR, AND} t;
-  union {
-    struct {
-      int stat;
-      int sign;
-      int val;
-    } leaf;
-
-    struct constree* braces;
-
-    struct {
-      struct constree* lm;
-      struct constree* rm;
-    } node;
-  }
-} constree_s;
+#define BIG_M 65536.
+#define MAX_DEPTH 10
 
 constree_s* new_leaf(int stat, int sign, int val);
 
@@ -33,11 +19,22 @@ constree_s* constree_from_str(const char* str);
 
 int symbol_to_stat(char symbol[3]);
 
-constree_s * eval(constree_s* ct);
+int eval(constree_s* ct);
+
+constree_s* cutting(constree_s* ct);
+
+int add_item_constraint(int item_id, linprob_s* lp, pbdata_s* pbd);
+
+int add_all_items_constraints(linprob_s* lp, pbdata_s* pbd);
+
+int fill_pbd_constraints(sqlite3* db, pbdata_s* pbd);
+
+void free_pbd_constraints(pbdata_s* pbd);
 
 void print_constree(constree_s* ct);
 
 void free_constree(constree_s** ct);
+
 
 /*
 

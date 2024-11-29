@@ -5,6 +5,8 @@ import csv as csv
 
 dbfile = "pydb.db";
 
+cascade = " on update cascade on delete "; 
+
 url= "https://api.beta.dofusdb.fr/";
 
 pages = [
@@ -201,6 +203,7 @@ def delete_shit_dot_com(con) :
     cur.execute("delete from item_stats where carac=0;");
     cur.execute("delete from set_bonuses where carac=0;");
     cur.execute("update item_stats set maxval = minval, minval = maxval where maxval < minval;");
+    cur.execute("delete from items where criteria like \"%~%\";");
     #supprimer la pano ankarthon et l'amulette chité 
     con.commit();
 
@@ -234,6 +237,7 @@ def add_cools(con) :
     cur.execute("update items set slotCode = (select slotCode from slot_codes where typeId = itemTypeId);");
     cur.execute("update item_stats set statCode = (select statCode from stat_codes where caracId = carac);");
     cur.execute("update set_bonuses set statCode = (select statCode from stat_codes where caracId = carac);");
+    cur.execute("update items set criteria = "" where ItemSetId = 466;");
 
     con.commit();
 

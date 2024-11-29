@@ -12,7 +12,6 @@ const char * const stats_symbols[] = {
 };
 #undef DEF
 
-#define ERR_MSG(s) fprintf(stdout, "%d-%s\n", __LINE__, s)
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
     double bnds[STATS_COUNT], int sign[STATS_COUNT]){
@@ -171,7 +170,6 @@ int lock_items_from_file(const char* pathname, linprob_s* lp){
     }
 
     if(sect != SECT_ITEMS) continue;
-    puts(buffer);
 
     if(buffer[strlen(buffer)-1] == '\n')
       buffer[strlen(buffer)-1] = '\0';

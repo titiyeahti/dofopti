@@ -1,0 +1,36 @@
+#LEVEL
+200
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 100
+int 100
+agi 100
+sa 100
+vit 100
+pa 1
+pm 1
+#OBJECTIVE
+str .56125
+pui .56125
+do 1.
+dot 1.
+doc .75
+#CONSTRAINTS
+pa >= 12
+pm >= 5
+vit >= 4500
+str >= 1000
+cri >= 50
+#LOCK_ITEMS

@@ -1,6 +1,7 @@
 #include "glpapi.h"
 #include "reader.h"
 #include "linprobjson.h" 
+#include "constree.h"
 
 #define DBFILE "skrapipi/pydb.db"
 
@@ -32,8 +33,12 @@ int main(int argc, char* argv[]){
   ret = sqlite3_open(DBFILE, &db);
   ret = reader(argv[1], &lvl, bs, tgt_slots, obj_coeff, bnds, sign);
 
+
   new_pbdata(db, &pbd, bs, tgt_slots, lvl);
+  fill_pbd_constraints(db, &pbd);
+
   lp = new_linprob(&pbd);
+  add_all_items_constraints(lp, &pbd);
 
   set_obj_coeff(lp, obj_coeff);
   const_multi_simple_constraints(lp, bnds, sign);
@@ -50,8 +55,12 @@ int main(int argc, char* argv[]){
   }
 
   ret = sqlite3_close(db);
-  free_pbdata(&pbd);
-  free_linprob(lp);
 
+  free_pbd_constraints(&pbd);
+  free_pbdata(&pbd);
+
+  free_linprob(lp);
+  
+  glp_free_env();
   return 0;
 }
