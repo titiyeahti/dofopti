@@ -14,8 +14,6 @@ const char* const slots_names[] = {
 
 double matrix_pptac[STATS_COUNT*STATS_COUNT] = {0.};
 
-#define ERR_MSG(s) fprintf(stdout, "%d-%s\n", __LINE__, s)
-#define SQL_CHECK_ERRORS(ret) if(ret == SQLITE_ERROR) {ERR_MSG("SQL"); exit(1);} 
 
 int init(){
   fill_pptac();
@@ -236,7 +234,7 @@ int fill_panos_id(pbdata_s* res){
 }
 
 int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
-    int targeted_slots[], int level){
+    int targeted_slots[SLOT_COUNT], int level){
   int nb_items, nb_bonuses, nb_panos;
   int ret, i;
 
@@ -277,7 +275,7 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
   res->nb_items = nb_items;
   res->nb_panos = nb_panos;
   res->nb_bonuses = nb_bonuses;
-  /*WARNING*/
+
   res->items_data = (statline_s*) malloc((nb_items+1)*sizeof(statline_s));
 
   ret = get_items_stats(db, res->items_data, res->level);
@@ -296,8 +294,6 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
 }
 
 void free_pbdata(pbdata_s* pbd){
-  int i;
-
   free(pbd->panos);
   free(pbd->items_data);
   free(pbd->bonuses_data);
@@ -353,7 +349,7 @@ void print_pbdata(pbdata_s* pbd){
 }
 
 void print_vec(size_t n, double vec[]){
-  int j;
+  size_t j;
   for(j=0; j<n; j++){
     printf("%f\t", vec[j]);
   }
@@ -361,23 +357,23 @@ void print_vec(size_t n, double vec[]){
 }
 
 void add_vec(size_t n, double v1[], double v2[], double output[]){
-  int i;
+  size_t i;
   for(i=0; i<n; i++)
     output[i] = v1[i]+v2[i];
 }
 
 void scalar_mult_vec(size_t n, double lambda, double input[], double output[]){
-  int i;
+  size_t  i;
   for(i=0; i<n; i++)
     output[i] = lambda*input[i];
 }
 
 void print_matrix(size_t n, size_t m, double matrix[]){
-  int i, j;
+  size_t i, j;
   for(i=0; i<n; i++){
     for(j=0; j<m; j++){
       if(matrix[i*m + j] > .001 || -matrix[i*m+j] > .001)
-        printf("%d, %d -> %f\t",i, j, matrix[i*m+j]);
+        printf("%ld, %ld -> %f\t",i, j, matrix[i*m+j]);
     }
     printf("\n");
   }
@@ -385,7 +381,7 @@ void print_matrix(size_t n, size_t m, double matrix[]){
 
 int mat_times_vec(size_t n, size_t m, double matrix[], 
     double input[], double output[]){
-  int i, j;
+  size_t i, j;
 
   double cur;
 
@@ -402,7 +398,7 @@ int mat_times_vec(size_t n, size_t m, double matrix[],
 
 int vec_times_mat(size_t n, size_t m, double matrix[],
     double input[], double output[]){
-  int i, j;
+  size_t i, j;
 
   double cur;
 
@@ -431,6 +427,7 @@ int basis_to_stat(size_t n, size_t m, double matrix[],
   double oo[m];
   vec_times_mat(n, m, matrix, input, oo);
   vec_times_mat(m, m, matrix_pptac, oo, output);
+  return 0;
 }
 
 int linprob_items_variables(linprob_s* res, pbdata_s* pbd){
@@ -547,7 +544,7 @@ int stats_repartition(glp_prob* pb, int level){
       sprintf(name, "%s-%d", stats_names[stat_rep[i]], j+1);
       glp_set_col_name(pb, id, name);
       glp_set_col_bnds(pb, id, GLP_DB, 0., 100.);
-      glp_set_col_kind(pb, id, GLP_IV);
+      glp_set_col_kind(pb, id, GLP_CV);
       ids[id - first_col + 1] = id;
       val[id - first_col + 1] = (double) (j + 1);
       id ++;
@@ -555,7 +552,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[VITA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_IV);
+  glp_set_col_kind(pb, id, GLP_CV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 1.;
 
@@ -563,7 +560,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[SA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_IV);
+  glp_set_col_kind(pb, id, GLP_CV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 3.;
 
@@ -673,7 +670,7 @@ int const_multi_simple_constraints(linprob_s* lp, double bounds[], int sign[]){
       if(sign[i] < 0){
         const_linear_lower(lp, coeffs, bounds[i], stats_names[i]);
       }
-      else if (sign[i]>0){
+      else if (sign[i] > 0){
         const_linear_upper(lp, coeffs, bounds[i], stats_names[i]);
       }
       else{

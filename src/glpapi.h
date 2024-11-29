@@ -6,68 +6,14 @@
 #include<stdlib.h>
 #include<string.h>
 #include<sqlite3.h>
-
-#define NAME_LEN 48
-/* 4*4+2 */
-#define NB_COLS_FOR_STATS 18
-#define NB_COLS_PER_ELEM 4
-#define NB_ELEMS 4
-
-#define DEF(e, str, s) e
-
-enum stats_e{
-#include "stats.conf"
-};
-
-#undef DEF
+#include "data_types.h"
 
 extern const char* const stats_names[];
-
-#define DEF(e, c, s, cs) e
-
-enum slots_e{
-#include "slots.conf"
-};
-
-#undef DEF
 
 extern const char* const slots_names[];
 
 extern double matrix_pptac[];
 
-/* We will cast into double when entering glpk*/
-typedef int stat_vect[STATS_COUNT];
-typedef char short_word[NAME_LEN];
-
-/* Contains stats for a given item or specific set bonus */
-typedef struct {
-  stat_vect stats;
-  int id, id_pano, slot_code;
-  short_word name;
-} statline_s;
-
-/* Used to keep a link between the sets (panos) and the items part of them*/
-typedef struct {
-  short_word name;
-  int id_pano, size, maxbonuses;
-  /* len(ids) = size + maxbonuses */
-  int ids[20];
-} pids_s;
-
-typedef struct {
-  int level, nb_items, nb_bonuses, nb_panos;
-  int targeted_slots[SLOT_COUNT];
-  stat_vect base_stats;
-  statline_s* items_data;
-  statline_s* bonuses_data;
-  pids_s* panos; 
-} pbdata_s;
-
-typedef struct {
-  int m, n;
-  double* matrix;
-  glp_prob* pb;
-} linprob_s;
 
 int init();
 int fill_pptac();

@@ -237,6 +237,7 @@ def add_cools(con) :
     cur.execute("update items set slotCode = (select slotCode from slot_codes where typeId = itemTypeId);");
     cur.execute("update item_stats set statCode = (select statCode from stat_codes where caracId = carac);");
     cur.execute("update set_bonuses set statCode = (select statCode from stat_codes where caracId = carac);");
+    cur.execute("update items set criteria = "" where ItemSetId = 466;");
 
     con.commit();
 
