@@ -10,8 +10,25 @@ enum sect_e{
 };
 #undef DEF
 
+#define DEF(e, dt, st, str) e
+enum elt_e {
+#include "elems.conf"
+};
+#undef DEF
+
 extern const char* const sections_names[];
 extern const char* const stats_symbols[];
+
+extern const int elt_do_id[];
+extern const int elt_stat_id[];
+extern const char* const elt_names[];
+
+int compute_coeff_crit(int elt, int crit, int minv, int maxv, 
+    int minc, int maxc, double obj_coeff[STATS_COUNT]);
+
+int compute_coeff_nocri(int elt, int minv, int maxv, 
+    double obj_coeff[STATS_COUNT]);
+
 
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 

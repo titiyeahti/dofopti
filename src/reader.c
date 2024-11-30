@@ -12,11 +12,59 @@ const char * const stats_symbols[] = {
 };
 #undef DEF
 
+#define DEF(e, dt, st, str) dt
+const int elt_do_id[ELEM_COUNT] = {
+#include "elems.conf"
+};
+#undef DEF
+
+#define DEF(e, dt, st, str) st
+const int elt_stat_id[] = {
+#include "elems.conf"
+};
+#undef DEF
+
+#define DEF(e, dt, st, str) str
+const char* const elt_names[] = {
+#include "elems.conf"
+};
+#undef DEF
+
+#define EFF_CRIT(c) ((c) < 0 ? 0 : ((c) > 100 ? 100 : (c) ))
+
+int compute_coeff_crit(int elt, int crit, int minv, int maxv, 
+    int minc, int maxc, double obj_coeff[STATS_COUNT]){
+  double val = (double) (EFF_CRIT(crit) * (minc + maxc) + 
+      (100 - EFF_CRIT(crit)) * (minv + maxv)) / 200.;
+
+  obj_coeff[elt_stat_id[elt]] += val;
+  obj_coeff[PUI] += val;
+  obj_coeff[DO] += 1.;
+  obj_coeff[elt_do_id[elt]] += 1.;
+
+  obj_coeff[DO_CRIT] += (double) EFF_CRIT(crit) / 100.;
+
+  return 0;
+}
+
+
+int compute_coeff_nocri(int elt, int minv, int maxv, 
+    double obj_coeff[STATS_COUNT]){
+  double val = (double) (minv + maxv) / 2.;
+  obj_coeff[elt_stat_id[elt]] += val;
+  obj_coeff[PUI] += val;
+  obj_coeff[DO] += 1.;
+  obj_coeff[elt_do_id[elt]] += 1.;
+
+  return 0;
+}
+
+
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
     double bnds[STATS_COUNT], int sign[STATS_COUNT]){
   int ret;
-  int i, sect;
+  int i, sect, crit_flag, elt;
   char buffer[BUFF_LEN];
   FILE* stream = fopen(pathname, "r");
   if (!stream) {
@@ -24,8 +72,12 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
     exit(1);
   }
 
+  crit_flag = 0;
   sect = -1;
+  elt = -1;
   while(fgets(buffer, BUFF_LEN - 1, stream)){
+    if(buffer[0] == '%') continue;
+
     if(buffer[0] == '#'){
       buffer[strlen(buffer)-1] = '\0';
       for(i = 0; i<SECT_COUNT; i++)
@@ -54,6 +106,15 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
         if(sscanf(buffer, "%d\n", lvl)!=1){
           fprintf(stderr, "Section lvl incorrecte\n");
           exit(1);
+        }
+        break;
+
+      case SECT_CRIT :
+        char* endptr;
+        long crit = strtol(buffer, &endptr, 10);
+        if(endptr != buffer){
+          crit_flag = 1;
+          sign[CRIT] = -1; bnds[CRIT] = crit;
         }
         break;
 
@@ -99,6 +160,30 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
         }
         break;
 
+      case SECT_DMG :
+        int crit_rate, minv, maxv, minc, maxc;
+        if(sscanf(buffer, "%s %d %d %d %d %d\n", 
+              str, &crit_rate, &minv, &maxv, &minc, &maxc) != 6){
+          fprintf(stderr, "linea de damagos incorecta\n");
+          exit(1);
+        }
+
+        for(i=0; i<ELEM_COUNT; i++){
+          if(!strcmp(str, elt_names[i])){
+            elt = i;
+            break;
+          }
+        }
+
+        if (i==ELEM_COUNT) break;
+
+        crit_flag && crit ? 
+          compute_coeff_crit(elt, crit_rate+bnds[CRIT], 
+              minv, maxv, minc, maxc, obj_coeff):
+          compute_coeff_nocri(elt, minv, maxv, obj_coeff);
+
+        break;
+
       case SECT_CONSTS :
         if(sscanf(buffer, "%s %s %lf\n", str, sig, &dval)!= 3){
           fprintf(stderr, "section de restriction incorrecta\n");
@@ -142,7 +227,6 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
 }
 
 int lock_items_from_file(const char* pathname, linprob_s* lp){
-  int ret;
   int i, sect;
   char buffer[BUFF_LEN];
   FILE* stream = fopen(pathname, "r");
@@ -183,5 +267,5 @@ int lock_items_from_file(const char* pathname, linprob_s* lp){
   }
 
   fclose(stream);
-  return 1;
+  return 0;
 }
