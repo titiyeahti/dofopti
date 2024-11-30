@@ -45,7 +45,11 @@ int main(int argc, char* argv[]){
 
   lock_items_from_file(argv[1], lp);
 
+  /*
+  glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
+  */
   solve_linprob(lp);
+
   print_linsol(lp, &pbd, stdout);
 
   if(argc == 3) {

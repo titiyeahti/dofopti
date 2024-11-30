@@ -3,6 +3,7 @@
 *.yy.*
 *.tab.*
 
+src/outputfiles/
 .idea/
 
 src/node_modules/

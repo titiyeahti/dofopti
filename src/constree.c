@@ -309,8 +309,8 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
       glp_set_col_name(lp->pb, col_id+1, name);
       glp_set_col_kind(lp->pb, col_id+1, GLP_BV);
 
-      int cur_ids[3];
-      double cur_coeffs[3];
+      int cur_ids[4];
+      double cur_coeffs[4];
       cur_ids[1] = col_id; cur_ids[2] = col_id+1;
       cur_coeffs[1] = 1.; cur_coeffs[2] = 1.;
 
@@ -318,12 +318,12 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
       sprintf(name, "y-%d-%d[+1]", item_id, 2*nb_ors);
       glp_set_row_name(lp->pb, rownum, name);
       glp_set_mat_row(lp->pb, rownum, 2, cur_ids, cur_coeffs);
-      glp_set_row_bnds(lp->pb, rownum, GLP_LO, 1., 1.);
+      glp_set_row_bnds(lp->pb, rownum, GLP_FX, 1., 1.);
 
       yids[nb_ors] = col_id;
       add_constraint_aux(item_id, yids, nb_ors+1, lp, ct->node.lm);
       yids[nb_ors] = col_id+1;
-      add_constraint_aux(item_id, yids, nb_ors+1, lp, ct->node.lm);
+      add_constraint_aux(item_id, yids, nb_ors+1, lp, ct->node.rm);
 
       break;
 
