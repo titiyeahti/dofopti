@@ -3,4 +3,5 @@
 *.yy.*
 *.tab.*
 
+src/outputfiles/
 .idea/

@@ -17,12 +17,10 @@ cha 100
 str 100
 int 100
 agi 100
-pa 1
-pm 1
 #OBJECTIVE
-str 1.
-pui 1.
+vit 1.
 #CONSTRAINTS
-vit >= 2999
+pa >= 12
+str <= 349
 #LOCK_ITEMS
--shaker
++crocoring

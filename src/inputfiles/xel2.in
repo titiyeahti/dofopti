@@ -20,6 +20,7 @@ agi 100
 vit 100
 sa 100
 pa 1
+pm 1
 #OBJECTIVE
 doe 2.
 doa 3.
@@ -34,6 +35,7 @@ str .1585
 pui 1.867
 #CONSTRAINTS
 pa >= 12
+pm >= 5
 cri >= 80
 #LOCK_ITEMS
 +cloudy dofus
