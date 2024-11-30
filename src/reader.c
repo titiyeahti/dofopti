@@ -35,14 +35,14 @@ const char* const elt_names[] = {
 int compute_coeff_crit(int elt, int crit, int minv, int maxv, 
     int minc, int maxc, double obj_coeff[STATS_COUNT]){
   double val = (double) (EFF_CRIT(crit) * (minc + maxc) + 
-      (100 - EFF_CRIT(crit)) * (minv + maxv)) / 200.;
+      (100 - EFF_CRIT(crit)) * (minv + maxv)) / (200.*100.);
 
   obj_coeff[elt_stat_id[elt]] += val;
   obj_coeff[PUI] += val;
   obj_coeff[DO] += 1.;
   obj_coeff[elt_do_id[elt]] += 1.;
 
-  obj_coeff[DO_CRIT] += (double) EFF_CRIT(crit) / 100.;
+  obj_coeff[DO_CRIT] += (double) EFF_CRIT(crit) / (100.);
 
   return 0;
 }
@@ -50,7 +50,7 @@ int compute_coeff_crit(int elt, int crit, int minv, int maxv,
 
 int compute_coeff_nocri(int elt, int minv, int maxv, 
     double obj_coeff[STATS_COUNT]){
-  double val = (double) (minv + maxv) / 2.;
+  double val = (double) (minv + maxv) / (2.*100.);
   obj_coeff[elt_stat_id[elt]] += val;
   obj_coeff[PUI] += val;
   obj_coeff[DO] += 1.;
