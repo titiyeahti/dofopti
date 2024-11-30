@@ -36,18 +36,18 @@ You can precise a section by writing `#SECTION_NAME` in your file.
 Here is the list of valid section names :
 - `LEVEL`, simple one, just print the level of your character.
 - `MIN_CRIT`, used to specify if you actually want to take critical strike into account in the computation. Here you specify the minimum critical strike chance given by your stuff as an integer. The solver will assume that you have THIS amount of crit chance in your stuff when doing computation.
-- `TARGETED_SLOTS`, the number of items you desire per slots. Often 6 for dofuses, 2 for ring and one for other slots. The section syntax is `slot_name uint` where the valid slots names are :
-    +`amulet`, default 1;
-    +`hat`, default 1;
-    +`ring`, default 1;
-    +`weapon`, default 1;
-    +`shield`, default 1;
-    +`belt`, default 1;
-    +`back`, default 1;
-    +`boots`, default 1;
-    +`dofus`, default 6;
-    +`prysmaradite`, default 1;
-    +`pet`, default 1.
+- `TARGETED_SLOTS`, the number of items you desire per slots. This section's syntax is `slot_name uint` where the valid slots names are :
+    - `amulet`, default 1;
+    - `hat`, default 1;
+    - `ring`, default 1;
+    - `weapon`, default 1;
+    - `shield`, default 1;
+    - `belt`, default 1;
+    - `back`, default 1;
+    - `boots`, default 1;
+    - `dofus`, default 6;
+    - `prysmaradite`, default 1;
+    - `pet`, default 1.
 - `BASE_STATS` the additionnal stats of your character, mainly "forgemagie". Syntax is the following ; `stat_name int`.
 - `DMG_LINES`, this section is here to help you optimize a damage round. Here you ave to give information over each damage line you want to take into account (ex: 4 lines for zoth warrior axe). Here is the syntax for a damage line : `elt_name line_crit_rate min_nocri max_nocri min_cri max_cri`. These are all integral values except for elt wich must be one of `air, eau, feu, terre, neutre`. You have to give each of the six required values even if your spell does not crit, in this case `crit_rate`must be `0`.
 - `OBJECIVE`, used to give simple objectives coeffs to the solver. Better not to use if already used dmg lines. Syntax : `stat_name int`.
