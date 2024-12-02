@@ -1,5 +1,5 @@
 #LEVEL
-49
+26
 #MIN_CRIT
 %Enter a value only if you want to take
 %critical strike into account in the computation.
@@ -17,17 +17,10 @@ boots 1
 dofus 6
 prysmaradite 1
 pet 0
-#BASE_STATS
-#DMG_LINES
-terre 15 23 26 27 31
-terre 15 23 26 27 31
-terre 0 23 27 23 27
+#OBJECTIVE
+sa 1.
 #CONSTRAINTS
 %stat_name (>=|<=|=) value
-pa >= 9
-pm >= 4
-po >= 3
-sa >= 80
 #LOCK_ITEMS
 %(+|-)item_name_in_english_with_no_cap.
 -dolmanax

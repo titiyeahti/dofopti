@@ -91,6 +91,11 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
       slot_codes[count] = pbd->items_data[i].slot_code;
       count++;
     }
+    if(val>1.5){
+      ids[count] = pbd->items_data[i].id;
+      slot_codes[count] = pbd->items_data[i].slot_code;
+      count++;
+    }
   }
 
 
