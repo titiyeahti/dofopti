@@ -1,7 +1,7 @@
 #LEVEL
 200
 #MIN_CRIT
-71
+75
 #TARGETED_SLOTS
 amulet 1
 hat 1
@@ -20,16 +20,14 @@ str 100
 int 100
 agi 100
 sa 100
-vit 100
-pa 1
+pa 1 
 pm 1
 #DMG_LINES
-terre 15 29 32 35 38
-terre 25 47 51 56 61
-terre 25 47 51 56 61
+eau 25 39 43 47 52
+eau 25 39 43 47 52
+eau 25 25 29 30 35
 #CONSTRAINTS
 pa >= 12
-pm >= 5
+pm >= 6
 #LOCK_ITEMS
 +turquoise dofus
--major powerhouse

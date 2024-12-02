@@ -96,6 +96,8 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
     nbi+= pbd->targeted_slots[i];
   }
 
+  nbi -= pbd->targeted_slots[SLOT_PRISMA];
+
   int count = 0;
   int ids[nbi];
   int slot_codes[nbi];
@@ -113,6 +115,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   }
 
   /* DO YOU WANT TO CREVER */
+  nbi = count;
   json_object* itids = json_object_new_array_ext(17);
 
   for(j=0; j<10; j++){
