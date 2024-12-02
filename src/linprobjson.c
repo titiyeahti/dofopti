@@ -79,7 +79,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
 
   /* cape, chapeau, ceinture, bottes, collier, anneau anneau, dofus, bouclier, arme, pet
    * + sept slots vides*/
-  int real_nb_per_slot[10];
+  int real_nb_per_slot[10] = {0};
   int count = 0;
   int ids[16];
   int slot_codes[16];
