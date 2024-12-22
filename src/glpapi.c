@@ -39,7 +39,7 @@ int fill_pptac(){
 
   matrix_pptac[PP+STATS_COUNT*CHA] = .1;
 
-  matrix_pptac[PODS+STATS_COUNT*FOR] = 10.;
+  matrix_pptac[PODS+STATS_COUNT*FOR] = 5.;
 
   return 0;
 }
@@ -90,7 +90,7 @@ int get_items_stats(sqlite3* db, statline_s* items_data, int level){
   int ret, i;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db, 
-      "select items.id, statCode, maxval, name, itemSetId, slotCode from items "
+      "select items.id, statCode, maxval, namefr, itemSetId, slotCode from items "
       "left join item_stats on id = itemId "
       "where level <= ? order by items.id;",
       -1, &stmt, NULL);
@@ -128,7 +128,7 @@ int get_bonuses(sqlite3* db, statline_s* bonuses_data){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db, 
-      "select setItemId, name, nbItems, statCode, val from set_bonuses join item_sets on id = setItemId order by setItemId, nbItems;", 
+      "select setItemId, namefr, nbItems, statCode, val from set_bonuses join item_sets on id = setItemId order by setItemId, nbItems;", 
       -1, &stmt, NULL);
 
   int nb_slots = 0;
@@ -180,7 +180,7 @@ int get_panos_info(sqlite3* db, pbdata_s* res){
   int ret;
   sqlite3_stmt* stmt;
   ret = sqlite3_prepare_v2(db,
-      "select count(distinct items.id), items.itemSetId, max(nbItems), item_sets.name "
+      "select count(distinct items.id), items.itemSetId, max(nbItems), item_sets.namefr "
       "from items join set_bonuses on set_bonuses.setItemId = items.itemSetId "
       "join item_sets on item_sets.id = items.itemSetId group by items.itemSetId;",
       -1, &stmt, NULL);
@@ -259,7 +259,7 @@ int new_pbdata(sqlite3* db, pbdata_s* res, stat_vect base_stats,
 
   res->base_stats[PA] = res->level >= 100 ? 7 : 6;
   res->base_stats[PM] = 3;
-  res->base_stats[PODS] = 1000;
+  res->base_stats[PODS] = 1000 + (res->level - 1) * 5;
   res->base_stats[VITA] = 50 + 5*res->level;
   res->base_stats[INVO] = 1;
   res->base_stats[PP] = 100;
@@ -544,7 +544,7 @@ int stats_repartition(glp_prob* pb, int level){
       sprintf(name, "%s-%d", stats_names[stat_rep[i]], j+1);
       glp_set_col_name(pb, id, name);
       glp_set_col_bnds(pb, id, GLP_DB, 0., 100.);
-      glp_set_col_kind(pb, id, GLP_CV);
+      glp_set_col_kind(pb, id, GLP_IV);
       ids[id - first_col + 1] = id;
       val[id - first_col + 1] = (double) (j + 1);
       id ++;
@@ -552,7 +552,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[VITA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_CV);
+  glp_set_col_kind(pb, id, GLP_IV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 1.;
 
@@ -560,7 +560,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[SA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_CV);
+  glp_set_col_kind(pb, id, GLP_IV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 3.;
 

@@ -134,6 +134,21 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
 
   json_object_object_add(ret, "ItemIds", itids);
 
+  json_object* result = json_object_new_array();
+  for(i=1; i<lp->n ; i++){
+    double val = glp_mip_col_val(lp->pb, i);
+    if(val>0.5){
+      if (i < pbd->nb_items+1){
+        json_object_array_add(result, 
+            json_object_new_string(glp_get_col_name(lp->pb, i)));
+        if(val>1.5)
+          json_object_array_add(result,
+              json_object_new_string(glp_get_col_name(lp->pb, i)));
+      }
+    }
+  }
+
+  json_object_object_add(ret, "Result", result);
 
   return ret;
 }
