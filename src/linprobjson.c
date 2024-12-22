@@ -79,10 +79,36 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
 
   /* cape, chapeau, ceinture, bottes, collier, anneau anneau, dofus, bouclier, arme, pet
    * + sept slots vides*/
+  int real_nb_per_slot[10] = {0};
+  int count = 0;
+  int ids[16];
+  int slot_codes[16];
+  int sqret;
+  for(i=1; i<pbd->nb_items+1; i++){
+    double val = glp_mip_col_val(lp->pb, i);
+    if(val>0.5){
+      ids[count] = pbd->items_data[i].id;
+      slot_codes[count] = pbd->items_data[i].slot_code;
+      count++;
+    }
+    if(val>1.5){
+      ids[count] = pbd->items_data[i].id;
+      slot_codes[count] = pbd->items_data[i].slot_code;
+      count++;
+    }
+  }
+
+
+  /* DO YOU WANT TO CREVER */
+  int nbi = count;
+  for(i=0; i<nbi; i++)
+    for(j=0; j<10; j++)
+      if(slot_codes[i] == slt[j])
+        real_nb_per_slot[j] ++;
 
   json_object* numpyx = json_object_new_array_ext(17);
   for(j=0; j<10; j++){
-    json_object_array_add(numpyx, json_object_new_int(pbd->targeted_slots[slt[j]]));
+    json_object_array_add(numpyx, json_object_new_int(real_nb_per_slot[j]));
   }
 
   /*for reasons*/
@@ -91,32 +117,10 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
 
   json_object_object_add(ret, "NumPicks", numpyx);
 
-  int nbi = 0;
-  for(i=0; i<SLOT_COUNT; i++){
-    nbi+= pbd->targeted_slots[i];
-  }
-
-  int count = 0;
-  int ids[nbi];
-  int slot_codes[nbi];
-  int sqret;
-  for(i=1; i<pbd->nb_items+1; i++){
-    double val = glp_mip_col_val(lp->pb, i);
-    if(val>0.5){
-      ids[count] = pbd->items_data[i].id;
-      slot_codes[count] = pbd->items_data[i].slot_code;
-      count++;
-
-      if(count == nbi)
-        break;
-    }
-  }
-
-  /* DO YOU WANT TO CREVER */
   json_object* itids = json_object_new_array_ext(17);
 
   for(j=0; j<10; j++){
-    json_object* arr = json_object_new_array_ext(pbd->targeted_slots[slt[j]]);
+    json_object* arr = json_object_new_array_ext(real_nb_per_slot[j]);
     for(i=0; i<nbi; i++)
       if(slot_codes[i] == slt[j])
         json_object_array_add(arr, json_object_new_int(ids[i]));
@@ -130,6 +134,21 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
 
   json_object_object_add(ret, "ItemIds", itids);
 
+  json_object* result = json_object_new_array();
+  for(i=1; i<lp->n ; i++){
+    double val = glp_mip_col_val(lp->pb, i);
+    if(val>0.5){
+      if (i < pbd->nb_items+1){
+        json_object_array_add(result, 
+            json_object_new_string(glp_get_col_name(lp->pb, i)));
+        if(val>1.5)
+          json_object_array_add(result,
+              json_object_new_string(glp_get_col_name(lp->pb, i)));
+      }
+    }
+  }
+
+  json_object_object_add(ret, "Result", result);
 
   return ret;
 }

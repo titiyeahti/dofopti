@@ -171,6 +171,8 @@ int fill_pbd_constraints(sqlite3* db, pbdata_s* pbd){
     i++;
   }
 
+  sqlite3_finalize(stmt);
+
   return 0;
 }
 

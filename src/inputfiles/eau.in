@@ -1,0 +1,44 @@
+#LEVEL
+180
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 100
+int 100
+agi 100
+sa 100
+vit 100
+pa 1
+#DMG_LINES
+%decimation entaille x2
+eau 15 21 25 26 31
+eau 15 21 25 26 31
+eau 15 28 31 34 36
+eau 15 28 31 34 36
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 5
+rpf <= -65
+vit >= 3000
+#LOCK_ITEMS
++almond and indigo dragoturkey
++emerald dofus
++cawwot dofus
+-vulbis dofus
+-ochre dofus

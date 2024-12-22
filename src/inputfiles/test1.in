@@ -1,0 +1,17 @@
+#LEVEL
+120
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+%50
+#TARGETED_SLOTS
+pet 1
+#OBJECTIVE
+sa 1.
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+#LOCK_ITEMS
++golden rhineetle
+%(+|-)item_name_in_english_with_no_cap.
+-dolmanax

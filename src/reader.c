@@ -176,6 +176,10 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
         }
 
         if (i==ELEM_COUNT) break;
+        if (elt==POUSSEE){
+          obj_coeff[DO_POU] += minv/4.;
+          break;
+        }
 
         crit_flag && crit ? 
           compute_coeff_crit(elt, crit_rate+bnds[CRIT], 
