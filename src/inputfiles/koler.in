@@ -1,0 +1,27 @@
+#LEVEL
+110
+#MIN_CRIT
+25
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+pet 0
+dofus 1
+#BASE_STATS
+pm 1
+#DMG_LINES
+air 15 25 27 30 33
+air 15 25 27 30 33
+air 25 19 22 23 26
+#CONSTRAINTS
+tac >= 85
+pa = 10
+pm = 6
+vit >= 1800
+#LOCK_ITEMS

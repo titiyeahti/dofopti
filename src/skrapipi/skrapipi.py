@@ -3,11 +3,11 @@ import requests as rq
 import sqlite3 as sql
 import csv as csv
 
-dbfile = "pydb.db";
+dbfile = "pydb2.db";
 
-cascade = " on update cascade on delete "; 
+cascade = " on update cascade on delete cascade "; 
 
-url= "https://api.beta.dofusdb.fr/";
+url= "https://api.dofusdb.fr/";
 
 pages = [
         "effects", 
@@ -33,17 +33,17 @@ sql_create = [
         "CREATE TABLE IF NOT EXISTS effects (id INTEGER PRIMARY KEY, description TEXT);", 
         "CREATE TABLE IF NOT EXISTS characteristics (id INTEGER PRIMARY KEY, keyword TEXT);", 
         "CREATE TABLE IF NOT EXISTS item_types (id INTEGER PRIMARY KEY, name TEXT, superTypeId INTEGER, categoryId INTEGER);",
-        "CREATE TABLE IF NOT EXISTS item_sets (id INTEGER PRIMAEY KEY, name TEXT);",
-        "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, level INTEGER, itemTypeId INTEGER, itemSetId INTEGER, criteria TEXT, \
-        FOREIGN KEY (itemSetId) REFERENCES item_sets(id), \
-        FOREIGN KEY (itemTypeId) REFERENCES item_types(id));",
+        "CREATE TABLE IF NOT EXISTS item_sets (id INTEGER PRIMAEY KEY, name TEXT, namefr TEXT);",
+        "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, namefr TEXT, level INTEGER, itemTypeId INTEGER, itemSetId INTEGER, criteria TEXT, \
+        FOREIGN KEY (itemSetId) REFERENCES item_sets(id) on update cascade on delete cascade , \
+        FOREIGN KEY (itemTypeId) REFERENCES item_types(id) on update cascade on delete cascade );",
         "CREATE TABLE IF NOT EXISTS set_bonuses (setItemId INTEGER, nbItems INTEGER, carac INTEGER, val INTEGER, \
-        FOREIGN KEY (setItemId) REFERENCES set_items(id), \
-        FOREIGN KEY (carac) REFERENCES characteristics(id), \
+        FOREIGN KEY (setItemId) REFERENCES set_items(id) on update cascade on delete cascade , \
+        FOREIGN KEY (carac) REFERENCES characteristics(id) on update cascade on delete cascade , \
         UNIQUE (setItemId, nbItems, carac));",
         "CREATE TABLE IF NOT EXISTS item_stats (itemId INTEGER, carac INTEGER, minval INTEGER, maxval INTEGER, \
-        FOREIGN KEY (itemId) REFERENCES items(id), UNIQUE (itemId, carac)\
-        FOREIGN KEY (carac) REFERENCES characteristics(id));",
+                FOREIGN KEY (itemId) REFERENCES items(id) on update cascade on delete cascade , UNIQUE (itemId, carac) on conflict ignore\
+        FOREIGN KEY (carac) REFERENCES characteristics(id) on update cascade on delete cascade );",
         "CREATE TABLE IF NOT EXISTS stat_codes (caracId INTEGER, statCode INTEGER);",
         "CREATE TABLE IF NOT EXISTS slot_codes (typeId INTEGER, slotCode INTEGER);"
         ];
@@ -52,8 +52,8 @@ sql_insert = [
         "INSERT INTO effects VALUES(?, ?);",
         "INSERT INTO characteristics VALUES(?, ?);",
         "INSERT INTO item_types VALUES(?, ?, ?, ?);",
-        "INSERT INTO item_sets VALUES(?, ?);",
-        "INSERT INTO items VALUES(?, ?, ?, ?, ?, ?);",
+        "INSERT INTO item_sets VALUES(?, ?, ?);",
+        "INSERT INTO items VALUES(?, ?, ?, ?, ?, ?, ?);",
         "INSERT OR IGNORE INTO set_bonuses VALUES(?, ?, ?, ?);",
         "INSERT INTO item_stats VALUES(?, ?, ?, ?);"
         ];
@@ -148,8 +148,8 @@ def fetch_item_sets(con) :
             break;
 
         for iset in js["data"] :
-            print(iset["slug"]["en"], iset["id"]);
-            cur.execute(sql_insert[3], (iset["id"], iset["slug"]["en"]));
+            print(iset["slug"]["fr"], iset["id"]);
+            cur.execute(sql_insert[3], (iset["id"], iset["slug"]["en"], iset["slug"]["fr"]));
             for j in range(len(iset["effects"])) :
                 for e in iset["effects"][j] :
                     cur.execute(sql_insert[5], (iset["id"], j+1, e["characteristic"], e["from"]));
@@ -172,8 +172,8 @@ def fetch_items_of_type(con, typeId) :
             break;
 
         for item in js["data"] :
-            print(item["slug"]["en"])
-            cur.execute(sql_insert[4], (item["id"], item["slug"]["en"], item["level"], 
+            print(item["slug"]["fr"])
+            cur.execute(sql_insert[4], (item["id"], item["slug"]["en"], item["slug"]["fr"], item["level"], 
                                         item["typeId"], item["itemSetId"], item["criteria"]));
             for e in item["effects"] :
                 cr = e["characteristic"]
@@ -204,6 +204,9 @@ def delete_shit_dot_com(con) :
     cur.execute("delete from set_bonuses where carac=0;");
     cur.execute("update item_stats set maxval = minval, minval = maxval where maxval < minval;");
     cur.execute("delete from items where criteria like \"%~%\";");
+    cur.execute("delete from items where criteria like \"%PX%\";");
+    cur.execute("delete from items where name like \"%(gm%\";");
+    cur.execute("update items set criteria = \"\" where itemSetId = 466;");
     #supprimer la pano ankarthon et l'amulette chité 
     con.commit();
 
@@ -237,7 +240,6 @@ def add_cools(con) :
     cur.execute("update items set slotCode = (select slotCode from slot_codes where typeId = itemTypeId);");
     cur.execute("update item_stats set statCode = (select statCode from stat_codes where caracId = carac);");
     cur.execute("update set_bonuses set statCode = (select statCode from stat_codes where caracId = carac);");
-    cur.execute("update items set criteria = "" where ItemSetId = 466;");
 
     con.commit();
 
@@ -258,20 +260,17 @@ if __name__== "__main__" :
     """
     con = sql.connect(dbfile);
     cur = con.cursor();
-    cur.execute(sql_drop[8]);
-    cur.execute(sql_drop[7]);
+    drop_tables(con)
     create_tables(con);
+    fetch_effects(con);
+    fetch_characteristics(con);
+    fetch_item_types(con);
+    fetch_item_sets(con);
+    fetch_items(con);
     import_csv_dict(con, "slot_codes.csv", "stat_codes.csv");
     add_cools(con);
     fix_null_maxvals(con);
-    #fetch_effects(con);
-    #fetch_characteristics(con);
-    #fetch_item_types(con);
-    #con.execute(sql_drop[4]);
-    #create_tables(con);
-    #fetch_item_sets(con);
-    #fetch_items(con);
-    #delete_shit_dot_com(con);
+    delete_shit_dot_com(con);
     con.close();
 
     print("tolate est racite");

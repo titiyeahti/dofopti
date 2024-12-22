@@ -3,7 +3,7 @@
 #include "linprobjson.h" 
 #include "constree.h"
 
-#define DBFILE "skrapipi/pydb2.db"
+#define DBFILE "skrapipi/pydb.db"
 
 int main(int argc, char* argv[]){
   if(argc < 2) exit(1);
@@ -48,7 +48,6 @@ int main(int argc, char* argv[]){
   /*
   glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
   */
-  solve_linprob(lp);
 
   print_linsol(lp, &pbd, stdout);
 
