@@ -148,7 +148,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
     }
   }
 
-  json_object_object_add(ret, "Result", result);
+  json_object_object_add(ret, "itemNamesFr", result);
 
   return ret;
 }

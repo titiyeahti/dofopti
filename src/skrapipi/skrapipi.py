@@ -207,6 +207,10 @@ def delete_shit_dot_com(con) :
     cur.execute("delete from items where criteria like \"%PX%\";");
     cur.execute("delete from items where name like \"%(gm%\";");
     cur.execute("update items set criteria = \"\" where itemSetId = 466;");
+    cur.execute("delete from item_sets where id = 505;");
+    cur.execute("delete from items where itemSetId = 505;");
+    cur.execute("delete from set_bonuses where setItemId = 505;");
+
     #supprimer la pano ankarthon et l'amulette chité 
     con.commit();
 
@@ -260,6 +264,7 @@ if __name__== "__main__" :
     """
     con = sql.connect(dbfile);
     cur = con.cursor();
+    """
     drop_tables(con)
     create_tables(con);
     fetch_effects(con);
@@ -270,6 +275,7 @@ if __name__== "__main__" :
     import_csv_dict(con, "slot_codes.csv", "stat_codes.csv");
     add_cools(con);
     fix_null_maxvals(con);
+    """
     delete_shit_dot_com(con);
     con.close();
 
