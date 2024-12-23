@@ -30,7 +30,7 @@ function SaveStuff(e) {
 }
 
 export async function TreatJson(Success, Fail){
-    await readFile('discord.json', 'utf8', async function(err, data) {
+    await readFile('discord.json', 'utf8', async function(err, data, items) {
         if (err) {
             await Fail(err)
             return;
@@ -41,6 +41,6 @@ export async function TreatJson(Success, Fail){
         for (var o = 0; o < byteArray.length; o += 1){
             c += String.fromCharCode(byteArray[o]);
         }
-        await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c), jdata.Result);
+        await Success("https://www.dofusbook.net/fr/equipement/dofus-stuffer/objets?stuff=" + btoa(c), jdata.Result, jdata.itemNamesFr);
     });
 }

@@ -132,7 +132,7 @@ if (process.env.DISCORD_TOKEN != null){
     });
     
     async function OptiSuccessful(interaction) {
-        await TreatJson(async (link, result) => {
+        await TreatJson(async (link, result, items) => {
                 const random = Math.floor(Math.random() * 6);
                 var toPrint;
 
@@ -151,6 +151,11 @@ if (process.env.DISCORD_TOKEN != null){
                 }
 
                 toPrint = '**[' + result + '💥]** ' + toPrint;
+                toPrint += "\n";
+                toPrint += "**LISTE DES ITEMS :**\n"
+                for(var i = 0; i < items.length; i++){
+                    toPrint += "- " + items[i] + "\n"
+                }
                 await interaction.followUp(toPrint)
                 await interaction.followUp(link)
             },
