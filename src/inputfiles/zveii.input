@@ -1,0 +1,61 @@
+#LEVEL
+190
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+60
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+pm 1
+pa 1
+cha 100
+int 100
+str 100
+agi 100
+sa 100
+vit 100
+#OBJECTIVE
+pui 4
+str 1
+agi 1
+int 1
+cha 1
+doc 20
+do 20
+dot 5
+dof 5
+doe 5
+doa 5
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 5
+str >= 300
+agi >= 300
+cha >= 300
+int >= 300
+pui >= 300
+rpa >= 15
+rpt >= 15
+rpe >= 15
+rpn >= 15
+rpf >= 15
+#LOCK_ITEMS
++dofus emeraude
++dofus pourpre
++dofus turquoise
++kokulte
+%(+|-)item_name_in_english_with_no_cap.
+

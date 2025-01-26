@@ -1,0 +1,57 @@
+#LEVEL
+195
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+60
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+pm 1
+str 100
+agi 100
+sa 100
+cha 100
+vit 100
+int 100
+#DMG_LINES
+terre 15 38 42 46 50
+terre 25 35 39 42 47
+feu 20 32 36 38 43
+feu 25 36 39 43 47
+air 15 31 35 37 42
+terre 10 8 9 10 11
+air 10 8 9 10 11
+feu 10 8 9 10 11
+eau 10 8 9 10 11
+#CONSTRAINTS
+pa >= 12
+pm >= 5
+rpe >= 15
+rpf >= 15
+rpt >= 15
+rpa >= 15
+rpn >= 15
+vita >= 3500
+%stat_name (>=|<=|=) value
+#LOCK_ITEMS
++gelano
++kokulte
+-bandeau de spiritueur
+-anneau tranchant
+-string fouetteur
+-dolmanax
+-dofus ocre
+%(+|-)item_name_in_english_with_no_cap.
+

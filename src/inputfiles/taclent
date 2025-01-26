@@ -1,7 +1,6 @@
 #LEVEL
-170
+200
 #MIN_CRIT
-60
 #TARGETED_SLOTS
 amulet 1
 hat 1
@@ -22,19 +21,15 @@ agi 100
 sa 100
 vit 100
 pm 1
-#DMG_LINES
-terre 15 29 32 35 38
-terre 15 29 32 35 38
-terre 25 4 6 10 12
-neutre 25 16 24 22 30
-terre 25 4 6 10 12
-neutre 25 16 24 22 30
+pa 1
+#OBJECTIVE
+vit 1
 #CONSTRAINTS
-pa >= 12
-pm >= 5
+tac >= 300
+pa >= 11
+pm >= 6
+rpt >= 40
+rpa >= 40
+rpe >= 40
+rpf >= 40
 #LOCK_ITEMS
--dolmanax
-+gelano
-+youyettes
--remueur
--dofus ocre

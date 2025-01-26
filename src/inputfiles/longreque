@@ -1,0 +1,32 @@
+#LEVEL
+200
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 4
+prysmaradite 1
+pet 1
+#BASE_STATS
+pa 1
+pm 1
+#DMG_LINES
+%decimation entaille x2
+feu 25 83 88 91 95
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 6
+#LOCK_ITEMS
+%(+|-)nom de l'objet en francais sans majuscule
+-dofus ocre
+

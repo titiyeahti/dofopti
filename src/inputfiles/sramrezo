@@ -1,0 +1,61 @@
+#LEVEL
+199
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+pm 1
+pa 1
+cha 100
+int 100
+str 100
+agi 100
+vit 100
+sa 100
+#DMG_LINES
+%8chacra + 2 mortel + 1 morteil seuil + 2 répu + 2 sournois + 1 dérive
+air 0 14 17 14 17
+feu 0 17 19 17 19
+feu 0 17 19 17 19
+air 0 14 17 14 17
+feu 0 17 19 17 19
+terre 0 39 43 39 43
+terre 0 39 43 39 43
+terre 0 49 54 49 54
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+terre 0 12 12 12 12
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 6
+po >= 5
+#LOCK_ITEMS
+-cape reski
+-dolmanax
+-crocobur
+-dofus ocre
++ecorce de brouce
++dagues lassay
++solomonk
++dofus abyssal
++kompost
+%(+|-)item_name_in_english_with_no_cap.
