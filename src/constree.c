@@ -159,7 +159,8 @@ int fill_pbd_constraints(sqlite3* db, pbdata_s* pbd){
     malloc((pbd->nb_items+1)*sizeof(constree_s*));
 
   ret = sqlite3_prepare_v2(db, 
-      "SELECT id, criteria FROM items where level <= ? order by id;", -1, &stmt, NULL);
+      "SELECT id, criteria FROM items where level <= ? order by id;", -1, 
+      &stmt, NULL);
   ret = sqlite3_bind_int(stmt, 1, pbd->level);
 
   i = 1;
@@ -285,7 +286,8 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
         (double) ct->leaf.sign * 
         (double) (1+nb_ors) * BIG_M;
       
-      compute_constraint(lp, item_id, ct->leaf.sign, ct->leaf.stat, bnd, yids, nb_ors);
+      compute_constraint(lp, item_id, ct->leaf.sign, ct->leaf.stat, 
+          bnd, yids, nb_ors);
       break;
       
     case BRACES :

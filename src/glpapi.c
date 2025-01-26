@@ -466,7 +466,7 @@ int linprob_slots_constraints(linprob_s* res, pbdata_s* pbd){
   for(i=0; i<pbd->nb_items; i++) vec[i+1] = 1.;
 
   glp_add_rows(res->pb, SLOT_COUNT);
-  int ids[pbd->nb_items+1] = {};
+  int ids[pbd->nb_items+1];
   for(i=0; i<SLOT_COUNT; i++){
     count = 1;
     for(j=1; j<pbd->nb_items+1; j++){
@@ -645,7 +645,7 @@ int set_obj_coeff(linprob_s* lp, double coeffs[]){
 int const_linear(linprob_s* lp, double coeffs[], const char* name, double* const_term){
   int i, ret, rownum;
   double output[lp->n];
-  int ids[lp->n]={};
+  int ids[lp->n];
   for(i = 0; i<lp->n; i++) ids[i] = i;
 
   stat_to_basis(lp->n, lp->m, lp->matrix, coeffs, output);

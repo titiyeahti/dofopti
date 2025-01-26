@@ -2,7 +2,7 @@
 200
 #TARGETED_SLOTS
 amulet 1
-hat 0
+hat 1
 ring 2
 weapon 1
 shield 1
@@ -17,6 +17,8 @@ cha 100
 str 100
 int 100
 agi 100
+sa 100
+vit 100
 pa 1
 #OBJECTIVE
 doe 8.
@@ -26,6 +28,7 @@ agi 0.24
 pui 1.96
 #CONSTRAINTS
 pa >= 12
-pm >= 5
+pm >= 6 
 #LOCK_ITEMS
-+vulbis dofus
++chapeau grave
++dofus vulbis
