@@ -544,7 +544,7 @@ int stats_repartition(glp_prob* pb, int level){
       sprintf(name, "%s-%d", stats_names[stat_rep[i]], j+1);
       glp_set_col_name(pb, id, name);
       glp_set_col_bnds(pb, id, GLP_DB, 0., 100.);
-      glp_set_col_kind(pb, id, GLP_IV);
+      glp_set_col_kind(pb, id, GLP_CV);
       ids[id - first_col + 1] = id;
       val[id - first_col + 1] = (double) (j + 1);
       id ++;
@@ -552,7 +552,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[VITA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_IV);
+  glp_set_col_kind(pb, id, GLP_CV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 1.;
 
@@ -560,7 +560,7 @@ int stats_repartition(glp_prob* pb, int level){
 
   glp_set_col_name(pb, id, stats_names[SA]);
   glp_set_col_bnds(pb, id, GLP_LO, 0., 0.);
-  glp_set_col_kind(pb, id, GLP_IV);
+  glp_set_col_kind(pb, id, GLP_CV);
   ids[id - first_col + 1] = id;
   val[id - first_col + 1] = 3.;
 

@@ -5,6 +5,40 @@
 
 #define DBFILE "skrapipi/pydb2.db"
 
+void intermediate_solutions(glp_tree *T, void *info){
+  int i;
+  int n;
+  double val;
+  glp_prob* pb;
+  switch (glp_ios_reason(T)){
+    case GLP_IBINGO :
+      pb = glp_ios_get_prob(T);
+      n = glp_get_num_cols(pb);
+      for(i=1; i<n+1; i++){
+        val = glp_mip_col_val((glp_prob*) info, i);
+        if(val>0.5)
+          printf("%s : %lf\n", glp_get_col_name((glp_prob*) info, i), val);
+      }
+      break;
+    default :
+      break;
+  }
+  return;
+}
+      
+int solve_linprob_bis(linprob_s* lp){
+  // config parm
+  glp_iocp parm;
+  glp_init_iocp(&parm);
+  parm.presolve = GLP_ON;
+  parm.cb_func = intermediate_solutions;
+  parm.cb_info = lp->pb;
+
+  // solve
+  glp_intopt(lp->pb, &parm);
+  return 0;
+}
+
 int main(int argc, char* argv[]){
   if(argc < 2) exit(1);
 
@@ -48,7 +82,7 @@ int main(int argc, char* argv[]){
   /*
   glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
   */
-  solve_linprob(lp);
+  solve_linprob_bis(lp);
 
   print_linsol(lp, &pbd, stdout);
 
