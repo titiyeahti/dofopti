@@ -3,7 +3,7 @@
 #include "linprobjson.h" 
 #include "constree.h"
 
-#define DBFILE "skrapipi/pydb2.db"
+#define DBFILE "skrapipi/pydb3.db"
 
 void intermediate_solutions(glp_tree *T, void *info){
   int i;
@@ -102,3 +102,4 @@ int main(int argc, char* argv[]){
   glp_free_env();
   return 0;
 }
+

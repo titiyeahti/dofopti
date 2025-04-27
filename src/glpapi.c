@@ -621,7 +621,11 @@ linprob_s* new_linprob(pbdata_s* pbd){
   linprob_slots_constraints(res, pbd);
   /*sets (panos) constraints*/
   for(i=0; i<pbd->nb_panos; i++){
-    /*if(!pbd->panos[i].size) continue;*/
+    if(pbd->panos[i].maxbonuses > 9) {
+      printf("%s, %d, %d\n", pbd->panos[i].name, 
+          pbd->panos[i].size, pbd->panos[i].maxbonuses);
+      continue;
+    }
     add_pano_constraints(res->pb, pbd->panos[i]);
   }
 

@@ -1,6 +1,7 @@
 #LEVEL
 200
 #MIN_CRIT
+50
 %Enter a value only if you want to take
 %critical strike into account in the computation.
 %Solver will assume you have this cc in your stuf

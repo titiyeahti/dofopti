@@ -1,0 +1,54 @@
+#LEVEL
+199
+#MIN_CRIT
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuff
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+pa 1
+pm 1
+agi 100
+str 100
+cha 100
+sa 100
+int 100
+vit 100
+#DMG_LINES
+air 25 44 48 53 58
+air 15 31 34 37 41
+air 15 31 34 37 41
+%air 5 14 17 18 21
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 5
+rpe >= 25
+rpt >= 25
+rpf >= 25
+rpa >= 25
+vit >= 4400
+#LOCK_ITEMS
+-amulette ementaire deluxe
++dorigami
+%+sangle hans
+%+dofus turquoise
++dorigami
++dokoko
++dofus pourpre
++dofus emeraude
++dofus abyssal
+-dolmanax
+-dofus ocre
+%(+|-)item_name_in_engl

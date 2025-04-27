@@ -1,0 +1,68 @@
+#LEVEL
+186
+#MIN_CRIT
+20
+%Enter a value only if you want to take
+%critical strike into account in the computation.
+%Solver will assume you have this cc in your stuf
+%15
+#TARGETED_SLOTS
+amulet 1
+hat 1
+ring 2
+weapon 1
+shield 1
+belt 1
+back 1
+boots 1
+dofus 6
+prysmaradite 1
+pet 1
+#BASE_STATS
+cha 100
+str 100
+int 100
+agi 100
+sa 100
+vit 100
+pa 1
+pm 1
+#DMG_LINES
+%tourbiere + 40 (8 PM)
+terre 15 71 75 77 82 
+%force de l'âge x3
+terre 15 28 32 34 38
+terre 15 28 32 34 38
+terre 15 28 32 34 38
+%remblai (2 cibles en moyenne)
+terre 10 20 22 24 26
+terre 10 20 22 24 26
+#CONSTRAINTS
+%stat_name (>=|<=|=) value
+pa >= 12
+pm >= 5
+vit >= 3000
+sa >= 300
+po >= 3
+pp >= 200
+rpf >= 15
+rpt >= 15
+rpe >= 15
+rpa >= 15
+rpn >= 10
+%po >= 4
+%cri >= 25
+#LOCK_ITEMS
+-dofus ocre
+-dofus turquoise
+-dofus des glaces
+-dolmanax
+-forcene majeur
+-robuste majeur
++chaussures lepon-davignon
++kompost
++gelano
++remueur
++ftalmo
+-canne hassukre edulcoree
+%+dagues du dragoeuf

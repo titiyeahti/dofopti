@@ -3,11 +3,11 @@ import requests as rq
 import sqlite3 as sql
 import csv as csv
 
-dbfile = "pydb2.db";
+dbfile = "pydb3.db";
 
 cascade = " on update cascade on delete cascade "; 
 
-url= "https://api.dofusdb.fr/";
+url= "https://api.beta.dofusdb.fr/";
 
 pages = [
         "effects", 
@@ -264,7 +264,6 @@ if __name__== "__main__" :
     """
     con = sql.connect(dbfile);
     cur = con.cursor();
-    """
     drop_tables(con)
     create_tables(con);
     fetch_effects(con);
@@ -275,7 +274,6 @@ if __name__== "__main__" :
     import_csv_dict(con, "slot_codes.csv", "stat_codes.csv");
     add_cools(con);
     fix_null_maxvals(con);
-    """
     delete_shit_dot_com(con);
     con.close();
 
