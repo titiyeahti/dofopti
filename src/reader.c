@@ -60,18 +60,13 @@ int compute_coeff_nocri(int elt, int minv, int maxv,
 }
 
 
-int reader(const char* pathname, int* lvl, stat_vect base_stats, 
+int streamreader(FILE* stream, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
     double bnds[STATS_COUNT], int sign[STATS_COUNT]){
+
   int ret;
   int i, sect, crit_flag, elt;
   char buffer[BUFF_LEN];
-  FILE* stream = fopen(pathname, "r");
-  if (!stream) {
-    fprintf(stderr, "cannot open file for reading\n");
-    exit(1);
-  }
-
   crit_flag = 0;
   sect = -1;
   elt = -1;
@@ -225,19 +220,31 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
     }
   }
 
-  fclose(stream);
-
   return 0;
+
 }
 
-int lock_items_from_file(const char* pathname, linprob_s* lp){
-  int i, sect;
-  char buffer[BUFF_LEN];
+int reader(const char* pathname, int* lvl, stat_vect base_stats, 
+    int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
+    double bnds[STATS_COUNT], int sign[STATS_COUNT]){
+  int ret;
   FILE* stream = fopen(pathname, "r");
   if (!stream) {
     fprintf(stderr, "cannot open file for reading\n");
     exit(1);
   }
+
+  ret = streamreader(stream, lvl, base_stats, tgt_slots, obj_coeff, bnds, sign);
+
+
+  fclose(stream);
+
+  return 0;
+}
+
+int lock_items_from_stream(FILE* stream, linprob_s* lp){
+  int i, sect;
+  char buffer[BUFF_LEN];
 
   sect = -1;
   while(fgets(buffer, BUFF_LEN - 1, stream)){
@@ -269,6 +276,19 @@ int lock_items_from_file(const char* pathname, linprob_s* lp){
       const_lock_in_item(lp, (const char*) buffer+1);
     }
   }
+
+  return 0;
+}
+
+int lock_items_from_file(const char* pathname, linprob_s* lp){
+  char buffer[BUFF_LEN];
+  FILE* stream = fopen(pathname, "r");
+  if (!stream) {
+    fprintf(stderr, "cannot open file for reading\n");
+    exit(1);
+  }
+
+  lock_items_from_stream(stream, lp);
 
   fclose(stream);
   return 0;

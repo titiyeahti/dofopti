@@ -29,11 +29,15 @@ int compute_coeff_crit(int elt, int crit, int minv, int maxv,
 int compute_coeff_nocri(int elt, int minv, int maxv, 
     double obj_coeff[STATS_COUNT]);
 
+int streamreader(FILE* stream, int* lvl, stat_vect base_stats, 
+    int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
+    double bnds[STATS_COUNT], int sign[STATS_COUNT]);
 
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
     double bnds[STATS_COUNT], int sign[STATS_COUNT]);
 
+int lock_items_from_stream(FILE* stream, linprob_s* lp);
 int lock_items_from_file(const char* pathname, linprob_s* lp);
 
 #endif
