@@ -19,8 +19,8 @@ void intermediate_solutions(glp_tree *T, void *info){
     case GLP_IBINGO :
       json_object* root = sol_to_json(inside->lp, inside->pbd);
 
-      puts("JSON");
-      puts(json_object_to_json_string(root));
+      
+      printf("JSON %s\n", json_object_to_json_string(root));
 
       json_object_put(root);
       break;
