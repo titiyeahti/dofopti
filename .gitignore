@@ -2,6 +2,7 @@
 *.out
 *.yy.*
 *.tab.*
+*.swp
 
 src/outputfiles/
 .idea/
