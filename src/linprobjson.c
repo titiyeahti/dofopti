@@ -53,6 +53,7 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   vals[4] = (int) glp_mip_col_val(lp->pb, id); id++;
   vals[5] = (int) glp_mip_col_val(lp->pb, id);
 
+
   json_object_array_add(points, json_object_new_int(vals[4]));
   json_object_array_add(points, json_object_new_int(vals[5]));
   json_object_array_add(points, json_object_new_int(vals[3]));
@@ -64,7 +65,6 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   json_object_object_add(ret, "AdditionalPoints", points);
 
   json_object_object_add(ret, "Level", json_object_new_int(pbd->level));
-  printf("obj val %lf\n", glp_mip_obj_val(lp->pb));
   json_object_object_add(ret, "Result", json_object_new_double(glp_mip_obj_val(lp->pb)));
   /*boolean stuff*/
   json_object_object_add(ret, "Poney", json_object_new_boolean(0));

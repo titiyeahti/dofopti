@@ -3,11 +3,11 @@ import requests as rq
 import sqlite3 as sql
 import csv as csv
 
-dbfile = "pydb3.db";
+dbfile = "pydb4.db";
 
 cascade = " on update cascade on delete cascade "; 
 
-url= "https://api.beta.dofusdb.fr/";
+url= "https://api.dofusdb.fr/";
 
 pages = [
         "effects", 

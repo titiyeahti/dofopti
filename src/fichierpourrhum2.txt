@@ -1,0 +1,74 @@
+GLPK Integer Optimizer 5.0
+1181 rows, 4632 columns, 228236 non-zeros
+4614 integer variables, 4521 of which are binary
+Preprocessing...
+1447 constraint coefficient(s) were reduced
+774 rows, 3466 columns, 97663 non-zeros
+3448 integer variables, all of which are binary
+Scaling...
+ A: min|aij| =  1.000e+00  max|aij| =  2.542e+04  ratio =  2.542e+04
+GM: min|aij| =  4.774e-02  max|aij| =  2.094e+01  ratio =  4.387e+02
+EQ: min|aij| =  2.281e-03  max|aij| =  1.000e+00  ratio =  4.385e+02
+2N: min|aij| =  1.953e-03  max|aij| =  1.583e+00  ratio =  8.105e+02
+Constructing initial basis...
+Size of triangular part is 774
+Solving LP relaxation...
+GLPK Simplex Optimizer 5.0
+774 rows, 3466 columns, 97663 non-zeros
+      0: obj =   2.706000000e+02 inf =   1.435e+00 (5)
+     36: obj =   6.217537275e+02 inf =   6.939e-18 (0)
+*   202: obj =   2.671721568e+03 inf =   3.628e-15 (0)
+OPTIMAL LP SOLUTION FOUND
+Integer optimization begins...
+Long-step dual simplex will be used
++   202: mip =     not found yet <=              +inf        (1; 0)
++   322: >>>>>   1.992935000e+03 <=   2.606553461e+03  30.8% (46; 0)
+JSON
+{ "BaseCaracs": [ 1000, 100, 100, 100, 100, 100, 7, 3, 0, 100, 0, 1 ], "AdditionalPoints": [ 0, 0, 361, 0, 0, 0 ], "Level": 170, "Result": 1992.9349999999999, "Poney": false, "PuissanceCarac": false, "AllowDamage": false, "ExoPA": false, "ExoPM": true, "ExoPO": false, "NumPicks": [ 1, 1, 1, 1, 1, 2, 6, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ], "ItemIds": [ [ 23628 ], [ 23626 ], [ 6498 ], [ 15198 ], [ 23256 ], [ 836, 2469 ], [ 694, 739, 13759, 13829, 16196, 16332 ], [ 23258 ], [ 11629 ], [ 13673 ], [ ], [ ], [ ], [ ], [ ], [ ], [ ] ], "itemNamesFr": [ "dofus pourpre", "dofus turquoise", "abranneau", "gelano", "slip kangouwou du wabbit gm", "youyettes", "kokulte", "forcene majeur", "turbulent", "bottes phossiles", "enrage majeur", "vigoureux majeur", "plantamulette", "bulbouclier", "bandeau de spiritueur", "fut d'aspiratueur" ] }
++   638: >>>>>   2.070775000e+03 <=   2.562304625e+03  23.7% (49; 5)
+JSON
+{ "BaseCaracs": [ 1000, 100, 100, 100, 100, 100, 7, 3, 0, 100, 0, 1 ], "AdditionalPoints": [ 0, 0, 361, 0, 0, 0 ], "Level": 170, "Result": 2070.7750000000001, "Poney": false, "PuissanceCarac": false, "AllowDamage": false, "ExoPA": false, "ExoPM": true, "ExoPO": false, "NumPicks": [ 1, 1, 1, 1, 1, 2, 6, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ], "ItemIds": [ [ 23628 ], [ 23626 ], [ 6498 ], [ 11583 ], [ 12095 ], [ 2469, 12094 ], [ 694, 739, 13759, 13829, 16196, 16332 ], [ 18684 ], [ 11629 ], [ 19794 ], [ ], [ ], [ ], [ ], [ ], [ ], [ ] ], "itemNamesFr": [ "dofus pourpre", "dofus turquoise", "gelano", "slip kangouwou du wabbit gm", "bottes de l'obsidiantre", "youyettes", "anneau de cantile", "amulette de cantile", "forcene majeur", "turbulent", "enrage majeur", "vigoureux majeur", "bouclier en slip", "volkorne emeraude", "bandeau de spiritueur", "fut d'aspiratueur" ] }
++  1360: >>>>>   2.274035000e+03 <=   2.459222719e+03   8.1% (76; 18)
+JSON
+{ "BaseCaracs": [ 1000, 100, 100, 100, 100, 100, 7, 3, 0, 100, 0, 1 ], "AdditionalPoints": [ 0, 0, 361, 0, 0, 0 ], "Level": 170, "Result": 2274.0349999999999, "Poney": false, "PuissanceCarac": false, "AllowDamage": false, "ExoPA": false, "ExoPM": true, "ExoPO": false, "NumPicks": [ 1, 1, 1, 1, 1, 2, 6, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ], "ItemIds": [ [ 18431 ], [ 18432 ], [ 18433 ], [ 12096 ], [ 12095 ], [ 2469, 12094 ], [ 694, 739, 12724, 13759, 13829, 13830 ], [ 18684 ], [ 11629 ], [ 13673 ], [ ], [ ], [ ], [ ], [ ], [ ], [ ] ], "itemNamesFr": [ "dofus pourpre", "dofus turquoise", "gelano", "youyettes", "anneau de cantile", "amulette de cantile", "bottes de cantile", "furibond majeur", "kokulte", "forcene majeur", "turbulent", "voyageur", "capterre", "cascterre", "cacture", "bouclier en slip" ] }
++  1478: >>>>>   2.409415000e+03 <=   2.452656982e+03   1.8% (35; 75)
+JSON
+{ "BaseCaracs": [ 1000, 100, 100, 100, 100, 100, 7, 3, 0, 100, 0, 1 ], "AdditionalPoints": [ 0, 0, 361, 0, 0, 0 ], "Level": 170, "Result": 2409.415, "Poney": false, "PuissanceCarac": false, "AllowDamage": false, "ExoPA": false, "ExoPM": true, "ExoPO": false, "NumPicks": [ 1, 1, 1, 1, 1, 2, 6, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ], "ItemIds": [ [ 23628 ], [ 23626 ], [ 17591 ], [ 12096 ], [ 12095 ], [ 2469, 12094 ], [ 694, 739, 12724, 13759, 13774, 13829 ], [ 18684 ], [ 11629 ], [ 13673 ], [ ], [ ], [ ], [ ], [ ], [ ], [ ] ], "itemNamesFr": [ "dofus pourpre", "dofus turquoise", "gelano", "youyettes", "anneau de cantile", "amulette de cantile", "bottes de cantile", "furibond majeur", "kokulte", "forcene majeur", "saccageur terre majeur", "turbulent", "ceinture des matougarous", "bouclier en slip", "bandeau de spiritueur", "fut d'aspiratueur" ] }
++  1531: mip =   2.409415000e+03 <=     tree is empty   0.0% (0; 201)
+INTEGER OPTIMAL SOLUTION FOUND
+dofus : dofus pourpre [1]
+dofus : dofus turquoise [1]
+ring : gelano [1]
+weapon : youyettes [1]
+ring : anneau de cantile [1]
+amulet : amulette de cantile [1]
+boots : bottes de cantile [1]
+dofus : furibond majeur [1]
+pet : kokulte [1]
+dofus : forcene majeur [1]
+dofus : saccageur terre majeur [1]
+dofus : turbulent [1]
+belt : ceinture des matougarous [1]
+shield : bouclier en slip [1]
+hat : bandeau de spiritueur [1]
+back : fut d'aspiratueur [1]
+panoplie gelax#1
+panoplie de cantile#3
+panoplie des matougarous#1
+panoplie des spiritueurs#2
+strength-1 [100]
+strength-2 [100]
+strength-3 [100]
+strength-4 [61]
+
+% air resistance [2]	% earth resistance [5]	% fire resistance [12]	% melee damage [0]	% melee resistance [0]
+% neutral resistance [0]	% ranged damage [0]	% ranged resistance [0]	% spell damage [0]	% water resistance [10]
+% weapon damage [0]	ap [12]	ap parry [41]	ap reduction [22]	agility [370]
+air damage [60]	air resistance [10]	chance [160]	critical [60]	critical damage [77]
+critical resistance [2]	damage [0]	dodge [7]	earth damage [90]	earth resistance [0]
+fire damage [16]	fire resistance [0]	heals [0]	initiative [1431]	intelligence [220]
+lock [47]	mp [5]	mp parry [22]	mp reduction [27]	neutral damage [70]
+neutral resistance [15]	power [110]	power (traps) [25]	prospecting [161]	pushback damage [30]
+pushback resistance [-15]	range [0]	reflect [0]	strength [981]	summons [2]
+trap damage [0]	vitality [2470]	water damage [10]	water resistance [10]	wisdom [320]
+pods [6251]	set_bonus [3]	

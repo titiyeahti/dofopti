@@ -64,7 +64,9 @@ int select_count_panos(sqlite3* db){
   int ret;
   int nb;
   sqlite3_stmt* stmt;
-  ret = sqlite3_prepare_v2(db, "SELECT count(distinct itemSetId) FROM items where itemSetId > -1;", -1, &stmt, NULL);
+  ret = sqlite3_prepare_v2(db, 
+      "select count(DISTINCT(setItemId)) from set_bonuses where setItemId > -1;"
+      , -1, &stmt, NULL);
   ret = sqlite3_step(stmt);
   SQL_CHECK_ERRORS(ret)
     nb = sqlite3_column_int(stmt, 0);
@@ -344,6 +346,7 @@ void print_pbdata(pbdata_s* pbd){
 
   printf("\nPANOS IDS [%d]\n", pbd->nb_panos);
   for(i = 0; i < pbd->nb_panos; i++){
+    puts(&pbd->panos[i].name);
     print_pids(&(pbd->panos[i]));
   }
 }
@@ -621,11 +624,13 @@ linprob_s* new_linprob(pbdata_s* pbd){
   linprob_slots_constraints(res, pbd);
   /*sets (panos) constraints*/
   for(i=0; i<pbd->nb_panos; i++){
+    /*
     if(pbd->panos[i].maxbonuses > 9) {
       printf("%s, %d, %d\n", pbd->panos[i].name, 
           pbd->panos[i].size, pbd->panos[i].maxbonuses);
       continue;
     }
+    */
     add_pano_constraints(res->pb, pbd->panos[i]);
   }
 

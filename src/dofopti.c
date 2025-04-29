@@ -5,34 +5,39 @@
 
 #define DBFILE "skrapipi/pydb3.db"
 
+typedef struct pbdl {
+  linprob_s* lp;
+  pbdata_s* pbd;
+} pbdl_s;
+
 void intermediate_solutions(glp_tree *T, void *info){
   int i;
   int n;
   double val;
-  glp_prob* pb;
+  pbdl_s * inside = (pbdl_s *) info;
   switch (glp_ios_reason(T)){
     case GLP_IBINGO :
-      pb = glp_ios_get_prob(T);
-      n = glp_get_num_cols(pb);
-      for(i=1; i<n+1; i++){
-        val = glp_mip_col_val((glp_prob*) info, i);
-        if(val>0.5)
-          printf("%s : %lf\n", glp_get_col_name((glp_prob*) info, i), val);
-      }
+      json_object* root = sol_to_json(inside->lp, inside->pbd);
+
+      puts("JSON");
+      puts(json_object_to_json_string(root));
+
+      json_object_put(root);
       break;
     default :
       break;
   }
   return;
 }
-      
-int solve_linprob_bis(linprob_s* lp){
+
+int solve_linprob_bis(linprob_s* lp, pbdata_s* pbd){
   // config parm
+  pbdl_s info = {lp, pbd};
   glp_iocp parm;
   glp_init_iocp(&parm);
   parm.presolve = GLP_ON;
   parm.cb_func = intermediate_solutions;
-  parm.cb_info = lp->pb;
+  parm.cb_info = &info;
 
   // solve
   glp_intopt(lp->pb, &parm);
@@ -80,17 +85,10 @@ int main(int argc, char* argv[]){
   lock_items_from_file(argv[1], lp);
 
   /*
-  glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
-  */
-  solve_linprob_bis(lp);
-
+     glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
+     */
+  solve_linprob_bis(lp, &pbd);
   print_linsol(lp, &pbd, stdout);
-
-  if(argc == 3) {
-    json_object* root = sol_to_json(lp, &pbd);
-    json_object_to_file(argv[2], root);
-    json_object_put(root);
-  }
 
   ret = sqlite3_close(db);
 
@@ -98,7 +96,7 @@ int main(int argc, char* argv[]){
   free_pbdata(&pbd);
 
   free_linprob(lp);
-  
+
   glp_free_env();
   return 0;
 }
