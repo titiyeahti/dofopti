@@ -3,11 +3,11 @@ import requests as rq
 import sqlite3 as sql
 import csv as csv
 
-dbfile = "pydb4.db";
+dbfile = "pydb5.db";
 
 cascade = " on update cascade on delete cascade "; 
 
-url= "https://api.dofusdb.fr/";
+url= "https://api.beta.dofusdb.fr/";
 
 pages = [
         "effects", 
@@ -34,7 +34,8 @@ sql_create = [
         "CREATE TABLE IF NOT EXISTS characteristics (id INTEGER PRIMARY KEY, keyword TEXT);", 
         "CREATE TABLE IF NOT EXISTS item_types (id INTEGER PRIMARY KEY, name TEXT, superTypeId INTEGER, categoryId INTEGER);",
         "CREATE TABLE IF NOT EXISTS item_sets (id INTEGER PRIMAEY KEY, name TEXT, namefr TEXT);",
-        "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, namefr TEXT, level INTEGER, itemTypeId INTEGER, itemSetId INTEGER, criteria TEXT, \
+        "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, name TEXT, namefr TEXT, level INTEGER, itemTypeId INTEGER, \
+        itemSetId INTEGER, criteria TEXT, imgLink TEXT, \
         FOREIGN KEY (itemSetId) REFERENCES item_sets(id) on update cascade on delete cascade , \
         FOREIGN KEY (itemTypeId) REFERENCES item_types(id) on update cascade on delete cascade );",
         "CREATE TABLE IF NOT EXISTS set_bonuses (setItemId INTEGER, nbItems INTEGER, carac INTEGER, val INTEGER, \
@@ -53,7 +54,7 @@ sql_insert = [
         "INSERT INTO characteristics VALUES(?, ?);",
         "INSERT INTO item_types VALUES(?, ?, ?, ?);",
         "INSERT INTO item_sets VALUES(?, ?, ?);",
-        "INSERT INTO items VALUES(?, ?, ?, ?, ?, ?, ?);",
+        "INSERT INTO items VALUES(?, ?, ?, ?, ?, ?, ?, ?);",
         "INSERT OR IGNORE INTO set_bonuses VALUES(?, ?, ?, ?);",
         "INSERT INTO item_stats VALUES(?, ?, ?, ?);"
         ];
@@ -172,9 +173,14 @@ def fetch_items_of_type(con, typeId) :
             break;
 
         for item in js["data"] :
-            print(item["slug"]["fr"])
+            print(item["slug"]["fr"]);
+            imgdata = rq.get(item["img"]).content;
+            with open('/home/yeti/work/dofopti/data/items_img/'+str(item["id"])+'.png', 'wb') as handler:
+                handler.write(imgdata);
+
             cur.execute(sql_insert[4], (item["id"], item["slug"]["en"], item["slug"]["fr"], item["level"], 
-                                        item["typeId"], item["itemSetId"], item["criteria"]));
+                                        item["typeId"], item["itemSetId"], item["criteria"], item["img"]));
+
             for e in item["effects"] :
                 cr = e["characteristic"]
                 if cr != -1:
