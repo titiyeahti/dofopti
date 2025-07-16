@@ -1,5 +1,6 @@
 # dofopti
-Mathematical optimisation applied to the french game dofus
+Mathematical optimisation applied to the french game dofus.
+Go check our website [roxfus](https://roxfus.online) !
 
 ## Required libraries to make
 
