@@ -213,6 +213,7 @@ int streamreader(FILE* stream, int* lvl, stat_vect base_stats,
         break;
 
       case SECT_ITEMS :
+        if(*nb_locks == MAX_LOCKS) break;
         if(buffer[strlen(buffer)-1] == '\n')
           buffer[strlen(buffer)-1] = '\0';
 
