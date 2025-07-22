@@ -3,6 +3,7 @@
 #include "glpapi.h"
 
 #define BUFF_LEN 1024
+#define MAX_LOCKS 128
 
 #define DEF(e, str) e
 enum sect_e{
@@ -31,13 +32,19 @@ int compute_coeff_nocri(int elt, int minv, int maxv,
 
 int streamreader(FILE* stream, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
-    double bnds[STATS_COUNT], int sign[STATS_COUNT]);
+    double bnds[STATS_COUNT], int sign[STATS_COUNT],
+    short_word locked_items[MAX_LOCKS], int* nb_locks);
 
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
-    double bnds[STATS_COUNT], int sign[STATS_COUNT]);
+    double bnds[STATS_COUNT], int sign[STATS_COUNT],
+    short_word locked_items[MAX_LOCKS], int* nb_locks);
 
+/*
 int lock_items_from_stream(FILE* stream, linprob_s* lp);
 int lock_items_from_file(const char* pathname, linprob_s* lp);
+*/
+int lock_items_from_array(short_word locked_items[MAX_LOCKS], int nb_locks,
+    linprob_s* lp);
 
 #endif

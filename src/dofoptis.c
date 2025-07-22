@@ -50,11 +50,12 @@ int main(int argc, char* argv[]){
   pbdata_s pbd;
   linprob_s* lp;
 
-  int i, ret, lvl;
+  int i, ret, lvl, nb_locks;
   int tgt_slots[SLOT_COUNT] = {1};
   int sign[STATS_COUNT];
   double obj_coeff[STATS_COUNT];
   double bnds[STATS_COUNT];
+  short_word locked_items[MAX_LOCKS];
   stat_vect bs = {0};
   for(i=0; i<SLOT_COUNT; i++) tgt_slots[i] = 1;
   tgt_slots[SLOT_DOFUS] = 6;
@@ -70,7 +71,8 @@ int main(int argc, char* argv[]){
   init();
   ret = sqlite3_open(DBFILE, &db);
 
-  ret = streamreader(stdin, &lvl, bs, tgt_slots, obj_coeff, bnds, sign);
+  ret = streamreader(stdin, &lvl, bs, tgt_slots, obj_coeff, bnds, sign,
+      locked_items, &nb_locks);
 
   new_pbdata(db, &pbd, bs, tgt_slots, lvl);
   fill_pbd_constraints(db, &pbd);
@@ -81,11 +83,8 @@ int main(int argc, char* argv[]){
   set_obj_coeff(lp, obj_coeff);
   const_multi_simple_constraints(lp, bnds, sign);
 
-/*  lock_items_from_stream(stdin, lp);
-*/
-  /*
-     glp_write_lp(lp->pb, NULL, "outputfiles/cplexout.txt");
-     */
+  lock_items_from_array(locked_items, nb_locks, lp);
+
   solve_linprob_bis(lp, &pbd);
   print_linsol(lp, &pbd, stdout);
 

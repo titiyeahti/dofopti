@@ -62,11 +62,14 @@ int compute_coeff_nocri(int elt, int minv, int maxv,
 
 int streamreader(FILE* stream, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
-    double bnds[STATS_COUNT], int sign[STATS_COUNT]){
+    double bnds[STATS_COUNT], int sign[STATS_COUNT], 
+    short_word locked_items[MAX_LOCKS], int* nb_locks){
 
   int ret;
   int i, sect, crit_flag, elt;
   char buffer[BUFF_LEN];
+
+  *nb_locks = 0;
   crit_flag = 0;
   sect = -1;
   elt = -1;
@@ -88,8 +91,6 @@ int streamreader(FILE* stream, int* lvl, stat_vect base_stats,
       fprintf(stderr, "incorrect config file\n");
       exit(1);
     }
-
-    if(sect == SECT_ITEMS) break;
 
     char str[48];
     char sig[3];
@@ -212,6 +213,13 @@ int streamreader(FILE* stream, int* lvl, stat_vect base_stats,
         break;
 
       case SECT_ITEMS :
+        if(buffer[strlen(buffer)-1] == '\n')
+          buffer[strlen(buffer)-1] = '\0';
+
+
+        strcpy(locked_items[*nb_locks], buffer);
+        *nb_locks += 1;
+
         break;
         
       default :
@@ -226,7 +234,8 @@ int streamreader(FILE* stream, int* lvl, stat_vect base_stats,
 
 int reader(const char* pathname, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
-    double bnds[STATS_COUNT], int sign[STATS_COUNT]){
+    double bnds[STATS_COUNT], int sign[STATS_COUNT], 
+    short_word locked_items[MAX_LOCKS], int* nb_locks){
   int ret;
   FILE* stream = fopen(pathname, "r");
   if (!stream) {
@@ -234,7 +243,8 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
     exit(1);
   }
 
-  ret = streamreader(stream, lvl, base_stats, tgt_slots, obj_coeff, bnds, sign);
+  ret = streamreader(stream, lvl, base_stats, tgt_slots, obj_coeff, bnds, sign,
+      locked_items, nb_locks);
 
 
   fclose(stream);
@@ -242,6 +252,7 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
   return 0;
 }
 
+/*
 int lock_items_from_stream(FILE* stream, linprob_s* lp){
   int i, sect;
   char buffer[BUFF_LEN];
@@ -291,5 +302,21 @@ int lock_items_from_file(const char* pathname, linprob_s* lp){
   lock_items_from_stream(stream, lp);
 
   fclose(stream);
+  return 0;
+}
+*/
+
+int lock_items_from_array(short_word locked_items[MAX_LOCKS], int nb_locks,
+    linprob_s* lp){
+  int i;
+  for(i=0; i<nb_locks; i++){
+    if(locked_items[i][0] == '-'){
+      const_lock_out_item(lp, (const char*) locked_items[i]+1);
+    }
+    if(locked_items[i][0] == '+'){
+      const_lock_in_item(lp, (const char*) locked_items[i]+1);
+    }
+  }
+
   return 0;
 }
