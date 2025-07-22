@@ -3,7 +3,7 @@
 #include "linprobjson.h" 
 #include "constree.h"
 
-#define DBFILE "skrapipi/pydb3.db"
+#define DBFILE "skrapipi/pydb5.db"
 
 typedef struct pbdl {
   linprob_s* lp;
