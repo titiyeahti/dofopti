@@ -178,8 +178,22 @@ def fetch_items_of_type(con, typeId) :
             with open('/home/yeti/work/dofopti/data/items_img/'+str(item["id"])+'.png', 'wb') as handler:
                 handler.write(imgdata);
 
-            cur.execute(sql_insert[4], (item["id"], item["slug"]["en"], item["slug"]["fr"], item["level"], 
-                                        item["typeId"], item["itemSetId"], item["criteria"], item["img"]));
+          
+            criterions = item.get("criterions", item.get("criteria"))
+            
+            cur.execute(
+                sql_insert[4],
+                (
+                    item["id"],
+                    item["slug"]["en"],
+                    item["slug"]["fr"],
+                    item["level"],
+                    item["typeId"],
+                    item["itemSetId"],
+                    criterions,
+                    item["img"],
+                )
+            );
 
             for e in item["effects"] :
                 cr = e["characteristic"]
