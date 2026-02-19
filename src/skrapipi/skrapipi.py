@@ -22,6 +22,8 @@ def url_item_sets(pages_read, beta=True):
     return base_url(beta) + "item-sets?$limit=50&$skip=" +str(pages_read*50)
 def url_items(pages_read, type_id, beta=True):
     return base_url(beta) + "items?$limit=50&typeId=" + str(type_id) + "&$skip=" +str(pages_read*50)
+def url_spells_wide(pages_read, beta=True):
+    return base_url(beta) + "spells?$limit=50&$skip=" +str(pages_read*50)
 def url_spells(pages_read, class_id, beta=True):
     return base_url(beta) + "spells?typeId=" + str(class_id) + "&$limit=50&$skip=" +str(pages_read*50)
 def url_spells_levels(pages_read, class_id, beta=True):
@@ -44,7 +46,7 @@ tables = [
 banned_item_type_id = [114, 169, 273, 274, 275, 276, 277, 279, 280]
 
 #Ids des classes dans l'ordre (sram, sacri, forgelance bizarre. 21=sort neutre)
-class_ids = [1,2,3,451,5,6,7,8,9,10,580,12,13,14,15,16,17,18,2374,21]
+class_ids = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,21,580,592,607,589,604,586,601,598,594,617,583,614,609,626,710,620,623,2374,2376,463]
 
 #Les effets qu'on s'autorise à stocker (vol de vie, degat, meilleur element, boost sort)
 valid_effects = [91,92,93,94,95,96,97,98,99,100,2822,2828,3293]
@@ -108,6 +110,28 @@ def run_sql_commands(sql_commands):
         cursor.execute(sql_command)
     sql_connection.commit()
 
+def fetch_class_ids():
+    i = 0
+    cursor = sql_connection.cursor()
+    id_fetched = []
+    while True :
+        r = rq.get(url_spells_wide(i))
+        if r.status_code != 200 :
+            break
+        js = r.json()
+        if not js["data"] :
+            break
+            
+        for spell in js["data"] :
+            typeId = spell["typeId"]
+            if typeId == 425:
+                continue
+            if not typeId in id_fetched:
+                id_fetched.append(typeId)
+                print(typeId)
+                
+        i+= 1
+            
 def fetch_spells():
     for class_id in class_ids :
         fetch_spells_for_class(class_id, False)
@@ -178,6 +202,10 @@ def fetch_spell_levels_for_class(class_id):
                 if effect["effectId"] in valid_effects:
                     crit_array.append(effect)
                     
+            #--- Bye bye Rekop ---#
+            if spell_level["spellId"] == 12853:
+                continue
+
             #--- Fix fleche de merde ---#
             if spell_level["spellId"] == 13062 and spell_level["grade"] == 1:
                 normal_array[0]["effectId"]=96
@@ -471,9 +499,10 @@ def complete_item_update() :
 
 if __name__== "__main__" :
     sql_connection = sql.connect(dbfile)
-    run_sql_commands([sql_drop_command("spells")])
+    #run_sql_commands([sql_drop_command("spells")])
+    #run_sql_commands(sql_create_commands)
+    run_sql_commands([sql_drop_command("spells"), sql_drop_command("spell_levels")])
     run_sql_commands(sql_create_commands)
     fetch_spells()
     fetch_spell_levels()
-    
     sql_connection.close()
