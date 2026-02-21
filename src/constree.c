@@ -62,6 +62,7 @@ constree_s* constree_from_str(const char* str) {
     else
     {
       ERR_MSG("Not recognized logic operator");
+      exit(2);
     }
 
     b = new_node(type, &a, &c);
@@ -80,6 +81,8 @@ constree_s* constree_from_str(const char* str) {
     else
     {
       ERR_MSG("Illegal comparison operator, should be >, < or =");
+      ERR_MSG(str);
+      exit(2);
     }
 
     a = new_leaf(stat, sign, val); 
@@ -93,6 +96,7 @@ constree_s* constree_from_str(const char* str) {
     else
     {
       ERR_MSG("Not recognized logic operator");
+      exit(2);
     }
     b = new_node(type, &a, &c);
 
@@ -316,6 +320,7 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
       if(nb_ors > MAX_DEPTH-1)
       {
         ERR_MSG("nb_ors > MAX_DEPTH-1, too many ors");
+        exit(2);
       }
 
       int col_id = glp_add_cols(lp->pb, 2);
