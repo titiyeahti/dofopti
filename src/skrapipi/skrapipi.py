@@ -408,6 +408,7 @@ def delete_shit_dot_com() :
     cursor.execute("update item_stats set "
                 "maxval = (case when maxval < minval then maxval else minval end),"
                 "maxval = (case when maxval < minval then minval else maxval end);")
+    cursor.execute("DELETE FROM items WHERE slot_codes=NULL;")
     cursor.execute("DELETE FROM items WHERE criteria LIKE ?", ("%~%",))
     cursor.execute("DELETE FROM items WHERE criteria LIKE ?", ("%PX%",))
     cursor.execute("DELETE FROM items WHERE name LIKE ?", ("%(gm%",))
