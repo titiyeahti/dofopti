@@ -86,14 +86,15 @@ json_object* sol_to_json(linprob_s* lp, pbdata_s* pbd){
   int sqret;
   for(i=1; i<pbd->nb_items+1; i++){
     double val = glp_mip_col_val(lp->pb, i);
+    int current_code = pbd->items_data[i].slot_code;
     if(val>0.5){
       ids[count] = pbd->items_data[i].id;
-      slot_codes[count] = pbd->items_data[i].slot_code;
+      slot_codes[count] = current_code == SLOT_PRISMA ? SLOT_DOFUS : current_code;
       count++;
     }
     if(val>1.5){
       ids[count] = pbd->items_data[i].id;
-      slot_codes[count] = pbd->items_data[i].slot_code;
+      slot_codes[count] = current_code;
       count++;
     }
   }
