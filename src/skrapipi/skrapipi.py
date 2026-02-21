@@ -29,7 +29,7 @@ def url_spells(pages_read, class_id, beta=True):
 def url_spells_levels(pages_read, class_id, beta=True):
     return base_url(beta) + "spell-levels?spellBreed=" + str(class_id) + "&$limit=50&$skip=" +str(pages_read*50)
 
-tables = [
+itemTables = [
         "effects", 
         "characteristics", 
         "item_types",
@@ -39,9 +39,11 @@ tables = [
         "item_stats",
         "stat_codes",
         "slot_codes",
-        "spell_levels",
-        "spells"
         ]
+spellTables = [
+    "spell_levels",
+    "spells"
+]
 
 banned_item_type_id = [114, 169, 273, 274, 275, 276, 277, 279, 280]
 
@@ -96,7 +98,8 @@ sql_insert_item_stats_command = "INSERT INTO item_stats (itemId, carac, minval, 
 sql_insert_spell_levels_command = "INSERT INTO spell_levels (levelRequirement, effect, spell, critChance, minVal, maxVal, minCritVal, maxCritVal) VALUES(?, ?, ?, ?, ?, ?, ?, ?);"
 sql_insert_spells_command = "INSERT INTO spells (id, name, classId) VALUES(?, ?, ?);"
 
-sql_drop_all_commands = ["DROP TABLE IF EXISTS " + table + ";" for table in tables]
+sql_drop_all_spells_commands = ["DROP TABLE IF EXISTS " + table + ";" for table in spellTables]
+sql_drop_all_items_commands = ["DROP TABLE IF EXISTS " + table + ";" for table in itemTables]
 def sql_drop_command(table):
     return "DROP TABLE IF EXISTS " + table + ";"
 
@@ -408,11 +411,13 @@ def delete_shit_dot_com() :
     cursor.execute("update item_stats set "
                 "maxval = (case when maxval < minval then maxval else minval end),"
                 "maxval = (case when maxval < minval then minval else maxval end);")
-    cursor.execute("DELETE FROM items WHERE slot_codes=NULL;")
+    cursor.execute("DELETE FROM items WHERE slotCode IS NULL;")
     cursor.execute("DELETE FROM items WHERE criteria LIKE ?", ("%~%",))
     cursor.execute("DELETE FROM items WHERE criteria LIKE ?", ("%PX%",))
     cursor.execute("DELETE FROM items WHERE name LIKE ?", ("%(gm%",))
+    cursor.execute("DELETE FROM items WHERE itemTypeId=97;")
     cursor.execute("UPDATE items SET criteria = ? WHERE itemSetId = ?", ("", 466))
+    cursor.execute("UPDATE items SET itemTypeId = ? WHERE itemTypeId = ?", (97, 311))
     cursor.execute("delete from item_sets where id = 505;")
     cursor.execute("delete from items where itemSetId = 505;")
     cursor.execute("delete from set_bonuses where setItemId = 505;")
@@ -457,7 +462,7 @@ def merge_fetched_data_with_mapping() :
 
 def complete_item_update() :
     #--- Purge la DB si elle existe ---#
-    run_sql_commands(sql_drop_all_commands)
+    run_sql_commands(sql_drop_all_items_commands)
 
     #--- Initialise les différentes tables de la DB ---#
     run_sql_commands(sql_create_commands)
@@ -498,12 +503,13 @@ def complete_item_update() :
     #--- Préviens l'utilisateur du caractère racite de tolate. [IMPORTANT] ---#
     print("tolate est racite")
 
-if __name__== "__main__" :
-    sql_connection = sql.connect(dbfile)
-    #run_sql_commands([sql_drop_command("spells")])
-    #run_sql_commands(sql_create_commands)
-    run_sql_commands([sql_drop_command("spells"), sql_drop_command("spell_levels")])
+def complete_spell_update() :
+    run_sql_commands(sql_drop_all_spells_commands)
     run_sql_commands(sql_create_commands)
     fetch_spells()
     fetch_spell_levels()
+    
+if __name__== "__main__" :
+    sql_connection = sql.connect(dbfile)
+    complete_item_update()
     sql_connection.close()
