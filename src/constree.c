@@ -19,7 +19,11 @@ constree_s* new_braces(constree_s** ct){
 }
 
 constree_s* new_node(int t, constree_s** lm, constree_s** rm){
-  if(t != OR && t != AND) exit(1);
+  if(t != OR && t != AND)
+  {
+    fprintf(stderr, "illegal node type, ignored\n");
+    exit(1);
+  }
   constree_s * res = (constree_s *) malloc(sizeof(constree_s));
   res->t = t;
   res->node.lm = *lm;
@@ -55,7 +59,10 @@ constree_s* constree_from_str(const char* str) {
     c = constree_from_str(str+count+2);
     if(str[count+1] == '&') type = AND;
     else if(str[count+1] == '|') type = OR;
-    else exit(1);
+    else
+    {
+      ERR_MSG("Not recognized logic operator");
+    }
 
     b = new_node(type, &a, &c);
     return b;
@@ -70,7 +77,10 @@ constree_s* constree_from_str(const char* str) {
     if(str[2] == '>') sign = -1;
     else if(str[2] == '<') sign = 1;
     else if(str[2] == '=') sign = 0;
-    else exit(1);
+    else
+    {
+      ERR_MSG("Illegal comparison operator, should be >, < or =");
+    }
 
     a = new_leaf(stat, sign, val); 
 
@@ -80,7 +90,10 @@ constree_s* constree_from_str(const char* str) {
     c = constree_from_str(endptr+1);
     if(endptr[0] == '&') type = AND;
     else if(endptr[0] == '|') type = OR;
-    else exit(1);
+    else
+    {
+      ERR_MSG("Not recognized logic operator");
+    }
     b = new_node(type, &a, &c);
 
     return b;
@@ -301,7 +314,9 @@ void add_constraint_aux(int item_id, int yids[], int nb_ors,
 
     case OR :
       if(nb_ors > MAX_DEPTH-1)
-        exit(1);
+      {
+        ERR_MSG("nb_ors > MAX_DEPTH-1, too many ors");
+      }
 
       int col_id = glp_add_cols(lp->pb, 2);
       short_word name;
