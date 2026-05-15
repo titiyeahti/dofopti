@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -g -Wall -Wextra -O3 -Iconfigfiles 
+CFLAGS= -g -Wall -Wextra -O3 -Iconfigfiles -std=c99
 #-fsanitize=address
 LDLIBS= -lglpk -lsqlite3 -ljson-c
 TARGETS= dofopti.out treetest.out dofoptis.out

@@ -46,6 +46,23 @@ struct constree{
 
 typedef struct constree constree_s;
 
+struct const_expr{
+  enum Type {LIT, DOUBLE, BRACES, MULT, ADD} t;
+  union {
+    int lit;
+    double value;
+
+    struct const_expr* braces;
+
+    struct {
+      struct const_expr* lm;
+      struct const_expr* rm;
+    } node;
+  };
+}
+
+typedef struct const_expr const_exp_s;
+
 /* We will cast into double when entering glpk*/
 typedef int stat_vect[STATS_COUNT];
 typedef char short_word[NAME_LEN];

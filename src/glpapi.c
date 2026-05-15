@@ -346,7 +346,7 @@ void print_pbdata(pbdata_s* pbd){
 
   printf("\nPANOS IDS [%d]\n", pbd->nb_panos);
   for(i = 0; i < pbd->nb_panos; i++){
-    puts(&pbd->panos[i].name);
+    puts((char*)&pbd->panos[i].name);
     print_pids(&(pbd->panos[i]));
   }
 }

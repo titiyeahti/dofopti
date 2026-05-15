@@ -59,6 +59,16 @@ int compute_coeff_nocri(int elt, int minv, int maxv,
   return 0;
 }
 
+int read_lvl(char* buffer, int* lvl){
+  if(sscanf(buffer, "%d\n", lvl)!=1){
+    fprintf(stderr, "Section lvl incorrecte\n");
+    exit(1);
+  }
+
+  return 0;
+}
+
+int read_crit(char* buffer, int* crit_flag);
 
 int streamreader(FILE* stream, int* lvl, stat_vect base_stats, 
     int tgt_slots[SLOT_COUNT], double obj_coeff[STATS_COUNT], 
@@ -222,7 +232,7 @@ int streamreader(FILE* stream, int* lvl, stat_vect base_stats,
         *nb_locks += 1;
 
         break;
-        
+
       default :
         fprintf(stderr, "étrange, cela n'est pas sensé se produire, manque de pot\n");
         exit(1);
@@ -254,58 +264,58 @@ int reader(const char* pathname, int* lvl, stat_vect base_stats,
 }
 
 /*
-int lock_items_from_stream(FILE* stream, linprob_s* lp){
-  int i, sect;
-  char buffer[BUFF_LEN];
+   int lock_items_from_stream(FILE* stream, linprob_s* lp){
+   int i, sect;
+   char buffer[BUFF_LEN];
 
-  sect = -1;
-  while(fgets(buffer, BUFF_LEN - 1, stream)){
-    if(buffer[0] == '#'){
-      buffer[strlen(buffer)-1] = '\0';
-      for(i = 0; i<SECT_COUNT; i++)
-        if(!strcmp(sections_names[i], buffer+1)){
-          sect = i;
-          break;
-        }
+   sect = -1;
+   while(fgets(buffer, BUFF_LEN - 1, stream)){
+   if(buffer[0] == '#'){
+   buffer[strlen(buffer)-1] = '\0';
+   for(i = 0; i<SECT_COUNT; i++)
+   if(!strcmp(sections_names[i], buffer+1)){
+   sect = i;
+   break;
+   }
 
-      continue;
-    }
+   continue;
+   }
 
-    if(sect < 0){
-      fprintf(stderr, "incorrect config file\n");
-      exit(1);
-    }
+   if(sect < 0){
+   fprintf(stderr, "incorrect config file\n");
+   exit(1);
+   }
 
-    if(sect != SECT_ITEMS) continue;
+   if(sect != SECT_ITEMS) continue;
 
-    if(buffer[strlen(buffer)-1] == '\n')
-      buffer[strlen(buffer)-1] = '\0';
+   if(buffer[strlen(buffer)-1] == '\n')
+   buffer[strlen(buffer)-1] = '\0';
 
-    if(buffer[0] == '-'){
-      const_lock_out_item(lp, (const char*) buffer+1);
-    }
-    if(buffer[0] == '+'){
-      const_lock_in_item(lp, (const char*) buffer+1);
-    }
-  }
+   if(buffer[0] == '-'){
+   const_lock_out_item(lp, (const char*) buffer+1);
+   }
+   if(buffer[0] == '+'){
+   const_lock_in_item(lp, (const char*) buffer+1);
+   }
+   }
 
-  return 0;
-}
+   return 0;
+   }
 
-int lock_items_from_file(const char* pathname, linprob_s* lp){
-  char buffer[BUFF_LEN];
-  FILE* stream = fopen(pathname, "r");
-  if (!stream) {
-    fprintf(stderr, "cannot open file for reading\n");
-    exit(1);
-  }
+   int lock_items_from_file(const char* pathname, linprob_s* lp){
+   char buffer[BUFF_LEN];
+   FILE* stream = fopen(pathname, "r");
+   if (!stream) {
+   fprintf(stderr, "cannot open file for reading\n");
+   exit(1);
+   }
 
-  lock_items_from_stream(stream, lp);
+   lock_items_from_stream(stream, lp);
 
-  fclose(stream);
-  return 0;
-}
-*/
+   fclose(stream);
+   return 0;
+   }
+   */
 
 int lock_items_from_array(short_word locked_items[MAX_LOCKS], int nb_locks,
     linprob_s* lp){
