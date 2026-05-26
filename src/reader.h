@@ -2,8 +2,6 @@
 #define READER_H
 #include "glpapi.h"
 
-#define BUFF_LEN 1024
-#define MAX_LOCKS 128
 
 #define DEF(e, str) e
 enum sect_e{

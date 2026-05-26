@@ -6,6 +6,9 @@
 #define NB_COLS_PER_ELEM 4
 #define NB_ELEMS 4
 
+#define BUFF_LEN 1024
+#define MAX_LOCKS 128
+
 #define ERR_MSG(s) fprintf(stderr, "%s:%d-%s\n", __FILE__, __LINE__, s)
 #define SQL_CHECK_ERRORS(ret) if(ret == SQLITE_ERROR) {ERR_MSG("SQL"); exit(1);} 
 
@@ -26,8 +29,11 @@ enum slots_e{
 
 #undef DEF
 
+enum node_type_e {LEAF, LIT, DOUBLE, BRACES, OR, AND, MULT, ADD, SUB} t;
+
 struct constree{
-  enum Type {LEAF, BRACES, OR, AND} t;
+  int t; 
+
   union {
     struct {
       int stat;
@@ -46,22 +52,23 @@ struct constree{
 
 typedef struct constree constree_s;
 
-struct const_expr{
-  enum Type {LIT, DOUBLE, BRACES, MULT, ADD} t;
+struct compconst{
+  int t;
+
   union {
     int lit;
     double value;
 
-    struct const_expr* braces;
+    struct compconst* braces;
 
     struct {
-      struct const_expr* lm;
-      struct const_expr* rm;
+      struct compconst* lm;
+      struct compconst* rm;
     } node;
   };
 }
 
-typedef struct const_expr const_exp_s;
+typedef struct compconst compconst_s;
 
 /* We will cast into double when entering glpk*/
 typedef int stat_vect[STATS_COUNT];

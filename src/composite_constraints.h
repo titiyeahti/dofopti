@@ -3,17 +3,19 @@
 
 #include "data_types.h"
 #include "glpapi.c"
-#include "constree.h"
 
-const_expr_s* new_double(double d);
-const_expr_s* new_lit(int i);
-const_expr_s* new_braces(const_expr_s** c);
-const_expr_s* new_node(int type, const_expr_s** lm, const_expr_s** rm);
+int str_to_statid(char* s);
+int trim_spaces(char* input, char buffer[]);
+compconst_s* new_double(double d);
+compconst_s* new_lit(int i);
+compconst_s* new_braces(compconst_s** c);
+compconst_s* new_node(int type, compconst_s** lm, compconst_s** rm);
 
-const_epxr_s* cons_expr_from_str(const char* str);
+const_epxr_s* compconst_from_str(const char* str);
 
-int const_expr_eval(const_expr_s* ce, double coeffs[], double* const_term);
+int compconst_eval(compconst_s* ce, double coeffs[], double* const_term);
 
+void free_compconst(compconst_s** ce);
 
 
 #endif
