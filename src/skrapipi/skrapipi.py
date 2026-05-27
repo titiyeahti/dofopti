@@ -421,7 +421,7 @@ def delete_shit_dot_com() :
     cursor.execute("delete from item_sets where id = 505;")
     cursor.execute("delete from items where itemSetId = 505;")
     cursor.execute("delete from set_bonuses where setItemId = 505;")
-
+    #supprimer la seconde corcobur
     #supprimer la pano ankarthon et l'amulette chité 
     sql_connection.commit()
 

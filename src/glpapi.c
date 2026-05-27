@@ -108,6 +108,7 @@ int get_items_stats(sqlite3* db, statline_s* items_data, int level){
     if (id != last_id){
       count++;
       for(i = 0; i<STATS_COUNT; i++) items_data[count].stats[i] = 0; 
+
       items_data[count].id_pano = sqlite3_column_int(stmt, 4);
       items_data[count].id = id;
       strcpy(items_data[count].name, (const char*) 

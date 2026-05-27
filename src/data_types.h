@@ -29,7 +29,7 @@ enum slots_e{
 
 #undef DEF
 
-enum node_type_e {LEAF, LIT, DOUBLE, BRACES, OR, AND, MULT, ADD, SUB} t;
+enum node_type_e {LEAF, LIT, DOUBLE, BRACES, OR, AND, MULT, ADD, SUB};
 
 struct constree{
   int t; 
@@ -66,7 +66,7 @@ struct compconst{
       struct compconst* rm;
     } node;
   };
-}
+};
 
 typedef struct compconst compconst_s;
 

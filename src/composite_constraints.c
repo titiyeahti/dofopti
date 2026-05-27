@@ -31,7 +31,7 @@ int trim_spaces(char* input, char buffer[]){
   return 0;
 }
 
-compconst_s* new_double(double d){
+compconst_s* cc_new_double(double d){
   compconst_s* res = (compconst_s*) malloc(sizeof(compconst_s));
 
   res->t = DOUBLE;
@@ -40,7 +40,7 @@ compconst_s* new_double(double d){
   return res;
 }
 
-compconst_s* new_lit(int i){
+compconst_s* cc_new_lit(int i){
   compconst_s* res = (compconst_s*) malloc(sizeof(compconst_s));
 
   res->t = LIT;
@@ -49,7 +49,7 @@ compconst_s* new_lit(int i){
   return res;
 }
 
-compconst_s* new_braces(compconst_s** c){
+compconst_s* cc_new_braces(compconst_s** c){
   compconst_s* res = (compconst_s*) malloc(sizeof(compconst_s));
 
   res->t = BRACES;
@@ -58,8 +58,8 @@ compconst_s* new_braces(compconst_s** c){
   return res;
 }
 
-compconst_s* new_node(int type, compconst_s** lm, compconst_s** rm){
-  if(t != ADD && t != MULT && t != MINUS){
+compconst_s* cc_new_node(int type, compconst_s** lm, compconst_s** rm){
+  if(t != ADD && t != MULT && t != SUB){
     ERR_MSG("illegal node type.");
     exit(1);
   }
@@ -75,7 +75,7 @@ compconst_s* new_node(int type, compconst_s** lm, compconst_s** rm){
  * with a long right branch*/
 /* TODO implement the unary minus : if starts with '-', 
  * return (0 - rec(buf+1, len-1))*/
-const_expr_s* aux_ccfromstr(char buffer[], int len){
+compconst_s* aux_ccfromstr(char buffer[], int len){
   compconst_s * res;
 
   compconst_s * tmp;
@@ -96,7 +96,7 @@ const_expr_s* aux_ccfromstr(char buffer[], int len){
 
 
     tmp = aux_ccfromstr(buffer+1, count-1);
-    lm = new_braces(&tmp);
+    lm = cc_new_braces(&tmp);
 
   }
 
@@ -112,7 +112,7 @@ const_expr_s* aux_ccfromstr(char buffer[], int len){
 
     int statid = str_to_statid(symb);
 
-    lm = new_lit(statid);
+    lm = cc_new_lit(statid);
   }
 
   if(buffer[0] <= '9' && buffer[0] >= '9'){
@@ -123,9 +123,9 @@ const_expr_s* aux_ccfromstr(char buffer[], int len){
     val = strtod(buffer, &endptr);
     count = (int)(endptr - buffer) - 1;
 
-    lm = new_double(val);
+    lm = cc_new_double(val);
   }
-  
+
   if (count == len-1) 
     return lm;
 
@@ -139,21 +139,66 @@ const_expr_s* aux_ccfromstr(char buffer[], int len){
       break;
 
     case '-' :
-      t = MINUS;
+      t = SUB;
       break;
 
     default :
       ERR_MSG("wrong operator");
+      exit(1);
   }
 
   rs = count + 2;
 
   rm = aux_ccfromstr(buffer+count+2, len-c-2);
-  res = new_node(t, &lm, &rm);
+  res = cc_new_node(t, &lm, &rm);
   return res;
 }
 
-const_epxr_s* compconst_from_str(const char* str){
+compconst_s* aux_fix_cc(compconst_s* cc){
+  switch (cc->t) {
+    case DOUBLE :
+      return cc;
+    case LIT :
+      return cc;
+    case BRACES :
+      return aux_fix_cc(cc->braces);
+    case SUB :
+    case ADD :
+      cc->lm = aux_fix_cc(cc->lm);
+      cc->rm = aux_fix_cc(cc->rm);
+      return cc;
+
+    case MULT :
+      /* look for an eventual +/- in rm */
+      /* rebranch acchordingly */
+      /* recursivre call in left and right childs */
+      compconst_s* cursor = cc;
+      while (cursor->rm->t == MULT){ 
+        cursor = cursor->rm;
+      }
+
+      if(cursor->t == ADD || cursor->t == SUB){
+        compconst_s* res = cc_new_node(cursor->t, &cc, &cursor->rm);
+        compconst_s* tmp = cursor->lm;
+        free(cursor);
+        cursor = tmp;
+
+        return aux_fix_cc(res);
+      }
+
+      else {
+        cc->lm = aux_fix_cc(cc->lm);
+        cc->rm = aux_fix_cc(cc->rm);
+        return cc;
+      }
+
+    default :
+      ERR_MSG("wrong node type");
+      exit(1);
+  }
+}
+
+compconst_s* compconst_from_str(const char* str){
   if(!strlen(str)) return NULL;
   compconst_s * res;
   compconst_s * tmp;
@@ -161,19 +206,72 @@ const_epxr_s* compconst_from_str(const char* str){
   char buffer[BUFF_LEN];
   trim_spaces(str, buffer);
   tmp = aux_ccfromstr(buffer, strlen(buffer));
+  res = aux_fix_cc(tmp);
+
+  return res;
 }
 
-/* 0.5*0.01*((12 + 14)*0.3 + (15+18)*(1-0.3))*(stat  + pui  + 100) + do + do elem + (1-0.3)*docri
- * lit -> expr
-double -> double
-double +/- double -> double
-double * double -> double
-(double) -> double
-double * expr -> expr
-(expr) -> expr
-expr + expr -> expr 
-expr - expr -> epxr */
-int compconst_eval(compconst_s* ce, double coeffs[], double* const_term);
+int compconst_eval(compconst_s* ce, double coeffs[], double* const_term){
+  double coeffsl[STATS_COUNT] = {0};
+  double coeffsr[STATS_COUNT] = {0};
+  double ctl = 0, ctr = 0;
+  switch ce->t {
+    case DOUBLE :
+      *const_term = ce->value;
+      return 0;
+    case LIT :
+      coeffs[lit] = 1.;
+      return 0;
+
+    case ADD :
+      compconst_eval(ce->lm, coeffsl, &ctl);
+      compconst_eval(ce->rm, coeffsr, &ctr);
+      add_vec(STATS_COUNT, coeffsl, coeffsr, coeffs);
+      *const_term = ctl + ctr;
+      return 0;
+
+    case SUB :
+      compconst_eval(ce->lm, coeffsl, &ctl);
+      compconst_eval(ce->rm, coeffsr, &ctr);
+      scalar_mult_vec(STATS_COUNT, -1., coeffsr, coeffsr);
+      add_vec(STATS_COUNT, coeffsl, coeffsr, coeffs);
+      *const_term = ctl - ctr;
+      return 0;
+
+    case MULT:
+      compconst_eval(ce->lm, coeffsl, &ctl);
+      compconst_eval(ce->rm, coeffsr, &ctr);
+
+      int i;
+      int flagl = 0;
+      int flagr = 0;
+      compconst_eval(ce->lm, coeffsl, &ctl);
+      compconst_eval(ce->rm, coeffsr, &ctr);
+      
+      for(i = 0; i<STATS_COUNT; i++){
+        if (coeffsl[i]) flagl = 1;
+        if (coeffsr[i]) flagr = 1;
+      }
+
+      if (flagl & flagr){
+        ERR_MSG("you shall not write non linear expressions");
+        exit(1);
+      }
+
+      if(flagl)
+        scalar_mult_vec(STATS_COUNT, ctr, coeffsl, coeffs);
+
+      if(flagr)
+        scalar_mult_vec(STATS_COUNT, ctl, coeffsr, coeffs);
+
+      *const_term = ctl*ctr;
+      return 0;
+
+    default :
+      ERR_MESSAGE("wrong node type");
+      exit(1);
+  }
+}
 
 void free_compconst(compconst_s** ce){
   compconst_s* temp = *ce;
