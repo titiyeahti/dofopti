@@ -2,8 +2,8 @@ CC=gcc
 CFLAGS= -g -Wall -Wextra -O3 -Iconfigfiles -std=c99
 #-fsanitize=address
 LDLIBS= -lglpk -lsqlite3 -ljson-c
-TARGETS= dofopti.out treetest.out dofoptis.out
-OBJECTS= glpapi.o reader.o linprobjson.o constree.o
+TARGETS= dofopti.out treetest.out dofoptis.out testcc.out
+OBJECTS= glpapi.o reader.o linprobjson.o constree.o composite_constraints.o
 
 all: $(TARGETS)
 

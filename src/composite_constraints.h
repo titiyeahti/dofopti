@@ -2,7 +2,9 @@
 #define comp_const_H
 
 #include "data_types.h"
-#include "glpapi.c"
+#include "glpapi.h"
+
+extern const char* const stats_symbols[];
 
 int str_to_statid(char* s);
 int trim_spaces(char* input, char buffer[]);
@@ -10,12 +12,12 @@ compconst_s* cc_new_double(double d);
 compconst_s* cc_new_lit(int i);
 compconst_s* cc_new_braces(compconst_s** c);
 compconst_s* cc_new_node(int type, compconst_s** lm, compconst_s** rm);
-:q
 
-const_epxr_s* compconst_from_str(const char* str);
+compconst_s* compconst_from_str(const char* str);
 
 int compconst_eval(compconst_s* ce, double coeffs[], double* const_term);
 
+void print_cc(compconst_s* cc, int depth);
 void free_compconst(compconst_s** ce);
 
 

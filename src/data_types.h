@@ -1,5 +1,12 @@
 #ifndef DATA_TYPES_H
 #define DATA_TYPES_H
+
+#include<glpk.h>
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<sqlite3.h>
+
 #define NAME_LEN 48
 /* 4*4+2 */
 #define NB_COLS_FOR_STATS 18

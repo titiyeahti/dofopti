@@ -6,12 +6,6 @@ const char* const sections_names[] = {
 };
 #undef DEF
 
-#define DEF(e, str, s) s
-const char * const stats_symbols[] = {
-#include "stats.conf"
-};
-#undef DEF
-
 #define DEF(e, dt, st, str) dt
 const int elt_do_id[ELEM_COUNT] = {
 #include "elems.conf"

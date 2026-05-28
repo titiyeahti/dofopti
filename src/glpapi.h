@@ -1,11 +1,6 @@
 #ifndef GLPAPI_H
 #define GLPAPI_H
 
-#include<glpk.h>
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<sqlite3.h>
 #include "data_types.h"
 
 extern const char* const stats_names[];

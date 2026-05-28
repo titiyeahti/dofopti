@@ -1,7 +1,7 @@
 #ifndef READER_H
 #define READER_H
 #include "glpapi.h"
-
+#include "composite_constraints.h"
 
 #define DEF(e, str) e
 enum sect_e{
@@ -16,7 +16,6 @@ enum elt_e {
 #undef DEF
 
 extern const char* const sections_names[];
-extern const char* const stats_symbols[];
 
 extern const int elt_do_id[];
 extern const int elt_stat_id[];
