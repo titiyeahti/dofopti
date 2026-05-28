@@ -156,7 +156,15 @@ compconst_s* aux_ccfromstr(char buffer[], int len){
       exit(1);
   }
 
-  rm = aux_ccfromstr(buffer+count+2, len-count-2);
+  if (t==SUB) {
+    compconst_s* c1 = cc_new_double(-1.);
+    compconst_s* c2 = aux_ccfromstr(buffer+count+2, len-count-2);
+    rm = cc_new_node(MULT, &c1, &c2);
+    t = ADD;
+  }
+  else{
+    rm = aux_ccfromstr(buffer+count+2, len-count-2);
+  }
   res = cc_new_node(t, &lm, &rm);
   return res;
 }
